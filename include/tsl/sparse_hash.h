@@ -40,6 +40,7 @@
 #include <vector>
 
 #include "sparse_growth_policy.h"
+#include <boost/core/pointer_traits.hpp>
 
 #ifdef __INTEL_COMPILER
 #include <immintrin.h>  // For _popcnt32 and _popcnt64
@@ -177,6 +178,16 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 }  // namespace detail_popcount
 
 namespace detail_sparse_hash {
+/** This is a quick and dirty way of adding to_address to the code.
+ * In the long run the "real" function must be inserted without boost dependability.
+ * @tparam T
+ * @param v
+ * @return
+ */
+template<typename T>
+auto to_address(T v) {
+    return boost::to_address(v);
+}
 
 template <typename T>
 struct make_void {
@@ -293,8 +304,11 @@ class sparse_array {
   using value_type = T;
   using size_type = std::uint_least8_t;
   using allocator_type = Allocator;
-  using iterator = value_type *;
-  using const_iterator = const value_type *;
+  using allocator_traits = std::allocator_traits<allocator_type>;
+  using pointer = typename allocator_traits::pointer;
+  using const_pointer = typename allocator_traits::const_pointer;
+  using iterator = pointer;
+  using const_iterator = const_pointer;
 
  private:
   static const size_type CAPACITY_GROWTH_STEP =
@@ -673,18 +687,18 @@ class sparse_array {
 
  private:
   template <typename... Args>
-  static void construct_value(allocator_type &alloc, value_type *value,
+  static void construct_value(allocator_type &alloc, pointer value,
                               Args &&... value_args) {
     std::allocator_traits<allocator_type>::construct(
-        alloc, value, std::forward<Args>(value_args)...);
+        alloc, to_address(value), std::forward<Args>(value_args)...);
   }
 
-  static void destroy_value(allocator_type &alloc, value_type *value) noexcept {
-    std::allocator_traits<allocator_type>::destroy(alloc, value);
+  static void destroy_value(allocator_type &alloc, pointer value) noexcept {
+    std::allocator_traits<allocator_type>::destroy(alloc, to_address(value));
   }
 
   static void destroy_and_deallocate_values(
-      allocator_type &alloc, value_type *values, size_type nb_values,
+      allocator_type &alloc, pointer values, size_type nb_values,
       size_type capacity_values) noexcept {
     for (size_type i = 0; i < nb_values; i++) {
       destroy_value(alloc, values + i);
@@ -808,7 +822,7 @@ class sparse_array {
                                 size_type new_capacity, Args &&... value_args) {
     tsl_sh_assert(new_capacity > m_nb_elements);
 
-    value_type *new_values = alloc.allocate(new_capacity);
+    pointer new_values = alloc.allocate(new_capacity);
     // Allocate should throw if there is a failure
     tsl_sh_assert(new_values != nullptr);
 
@@ -944,7 +958,7 @@ class sparse_array {
   }
 
  private:
-  value_type *m_values;
+  pointer m_values;
 
   bitmap_type m_bitmap_vals;
   bitmap_type m_bitmap_deleted_vals;
