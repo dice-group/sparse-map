@@ -70,11 +70,13 @@ void copy_construction() {
 template <typename T>
 void move_construction() {
     typename T::Allocator a;
-    auto moved_to(details::generate_test_array<T>(a));
+    //two lines needed. Otherwise move/copy elision
+    auto moved_from = details::generate_test_array<T>(a);
+    typename T::Array moved_to(std::move(moved_from));
     auto check = details::generate_check_for_test_array<T>();
     BOOST_TEST_REQUIRE(std::equal(moved_to.begin(), moved_to.end(), check.begin()),
                        "'move' changed the order of the items");
-    check.clear(a);
+    moved_to.clear(a);
 }
 
 
@@ -102,12 +104,12 @@ BOOST_AUTO_TEST_CASE(std_alloc_compile) {compilation<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_construction) {construction<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_set) {set<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_copy_construction) {copy_construction<STD<int>>();}
-BOOST_AUTO_TEST_CASE(std_alloc_move_construction) {copy_construction<STD<int>>();}
+BOOST_AUTO_TEST_CASE(std_alloc_move_construction) {move_construction<STD<int>>();}
 
 BOOST_AUTO_TEST_CASE(custom_alloc_compile) {compilation<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_construction) {construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_set) {set<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_copy_construction) {copy_construction<CUSTOM<int>>();}
-BOOST_AUTO_TEST_CASE(custom_alloc_move_construction) {copy_construction<CUSTOM<int>>();}
+BOOST_AUTO_TEST_CASE(custom_alloc_move_construction) {move_construction<CUSTOM<int>>();}
 
 BOOST_AUTO_TEST_SUITE_END()
