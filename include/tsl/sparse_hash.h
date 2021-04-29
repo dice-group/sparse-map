@@ -40,6 +40,7 @@
 #include <vector>
 
 #include "sparse_growth_policy.h"
+//quick and dirty
 #include <boost/core/pointer_traits.hpp>
 
 #ifdef __INTEL_COMPILER
@@ -1023,15 +1024,15 @@ class sparse_hash : private Allocator,
 
   using key_type = typename KeySelect::key_type;
   using value_type = ValueType;
-  using size_type = std::size_t;
-  using difference_type = std::ptrdiff_t;
   using hasher = Hash;
   using key_equal = KeyEqual;
   using allocator_type = Allocator;
-  using reference = value_type &;
-  using const_reference = const value_type &;
-  using pointer = value_type *;
-  using const_pointer = const value_type *;
+  using reference = value_type &; //does it need change?
+  using const_reference = const value_type &; //does it need change?
+  using size_type = typename std::allocator_traits<allocator_type>::size_type;
+  using pointer = typename std::allocator_traits<allocator_type>::pointer;
+  using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
+  using difference_type = typename std::allocator_traits<allocator_type>::difference_type;
   using iterator = sparse_iterator<false>;
   using const_iterator = sparse_iterator<true>;
 
@@ -1117,6 +1118,7 @@ class sparse_hash : private Allocator,
 
     reference operator*() const { return *m_sparse_array_it; }
 
+    //with fancy pointers addressof might be problematic.
     pointer operator->() const { return std::addressof(*m_sparse_array_it); }
 
     sparse_iterator &operator++() {
@@ -1357,12 +1359,14 @@ class sparse_hash : private Allocator,
    */
   iterator begin() noexcept {
     auto begin = m_sparse_buckets_data.begin();
-    while (begin != m_sparse_buckets_data.end() && begin->empty()) {
+    //fancy pointers seem to have a problem with "->" in this context
+    while (begin != m_sparse_buckets_data.end() && (*begin).empty()) {
       ++begin;
     }
 
+    //fancy pointers seem to have a problem with "->" in this context
     return iterator(begin, (begin != m_sparse_buckets_data.end())
-                               ? begin->begin()
+                               ? (*begin).begin()
                                : nullptr);
   }
 
