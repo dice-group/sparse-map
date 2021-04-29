@@ -63,9 +63,22 @@ template <typename T>
 void iterator_access(typename T::value_type single_value) {
     auto set = details::default_construct_set<T>();
     set.insert(single_value);
-    set.begin();
     BOOST_TEST_REQUIRE(*(set.begin()) == single_value, "iterator cannot access single value");
 }
+
+template <typename T>
+void iterator_access_multi(std::initializer_list<typename T::value_type> l) {
+    auto set = details::default_construct_set<T>();
+    set.insert(l.begin(), l.end());
+    std::vector<typename T::value_type> l_sorted = l;
+    std::vector<typename T::value_type> set_sorted(set.begin(), set.end());
+    std::sort(l_sorted.begin(), l_sorted.end());
+    std::sort(set_sorted.begin(), set_sorted.end());
+    BOOST_TEST_REQUIRE(std::equal(l_sorted.begin(), l_sorted.end(),
+                                  set_sorted.begin(), set_sorted.end()),
+                       "iterating over the set didn't work");
+}
+
 
 template<typename T>
 struct STD {
@@ -88,10 +101,28 @@ BOOST_AUTO_TEST_CASE(std_alloc_compiles) {construction<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_insert) {insert<STD<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_insert) {iterator_insert<STD<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_access) {iterator_access<STD<int>>(42);}
+BOOST_AUTO_TEST_CASE(std_alloc_iterator_access_multi) {iterator_access_multi<STD<int>>({1,2,3,4});}
 
 BOOST_AUTO_TEST_CASE(custom_alloc_compiles) {construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_insert) {insert<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_insert) {iterator_insert<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int>>(42);}
+BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
 
+BOOST_AUTO_TEST_SUITE_END()
+
+#include <tsl/sparse_set.h>
+
+BOOST_AUTO_TEST_SUITE(test_full_set)
+
+BOOST_AUTO_TEST_CASE(full_set) {
+   tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;
+   std::vector<int> data = {1,2,3,4,5,6,7,8,9};
+   set.insert(data.begin(), data.end());
+   std::cout << std::boolalpha;
+   for (auto d : data) {
+       std::cout << d << " in set: " << set.contains(d) << std::endl;
+   }
+
+}
 BOOST_AUTO_TEST_SUITE_END()

@@ -40,7 +40,7 @@
 #include <vector>
 
 #include "sparse_growth_policy.h"
-//quick and dirty
+//TODO quick and dirty
 #include <boost/core/pointer_traits.hpp>
 
 #ifdef __INTEL_COMPILER
@@ -1027,8 +1027,8 @@ class sparse_hash : private Allocator,
   using hasher = Hash;
   using key_equal = KeyEqual;
   using allocator_type = Allocator;
-  using reference = value_type &; //does it need change?
-  using const_reference = const value_type &; //does it need change?
+  using reference = value_type &; //TODO does it need change?
+  using const_reference = const value_type &; //TODO does it need change?
   using size_type = typename std::allocator_traits<allocator_type>::size_type;
   using pointer = typename std::allocator_traits<allocator_type>::pointer;
   using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
@@ -1118,25 +1118,26 @@ class sparse_hash : private Allocator,
 
     reference operator*() const { return *m_sparse_array_it; }
 
-    //with fancy pointers addressof might be problematic.
-    pointer operator->() const { return std::addressof(*m_sparse_array_it); }
+    //TODO with fancy pointers addressof might be problematic.
+    pointer operator->() const { return std::pointer_traits<pointer>::pointer_to(*m_sparse_array_it); }
 
     sparse_iterator &operator++() {
       tsl_sh_assert(m_sparse_array_it != nullptr);
       ++m_sparse_array_it;
 
-      if (m_sparse_array_it == m_sparse_buckets_it->end()) {
+      //fancy pointers have a problem with ->
+      if (m_sparse_array_it == (*m_sparse_buckets_it).end()) {
         do {
-          if (m_sparse_buckets_it->last()) {
+          if ((*m_sparse_buckets_it).last()) {
             ++m_sparse_buckets_it;
             m_sparse_array_it = nullptr;
             return *this;
           }
 
           ++m_sparse_buckets_it;
-        } while (m_sparse_buckets_it->empty());
+        } while ((*m_sparse_buckets_it).empty());
 
-        m_sparse_array_it = m_sparse_buckets_it->begin();
+        m_sparse_array_it = (*m_sparse_buckets_it).begin();
       }
 
       return *this;
