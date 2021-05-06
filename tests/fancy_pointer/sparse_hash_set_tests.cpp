@@ -1,10 +1,15 @@
-//
-// Created by lukas on 22.04.21.
-//
+/** @file
+ * @brief Checks for fancy pointer support in the sparse_hash implementation for single values (sets).
+ */
+
 #include <boost/test/unit_test.hpp>
+#include <tsl/sparse_set.h>
 #include <tsl/sparse_hash.h>
 #include "CustomAllocator.h"
 
+/* Tests are analogous to the  tests in sparse_array_tests.cpp.
+ * The template parameter now also holds the value_type.
+ */
 namespace details {
     template<typename Key>
     struct KeySelect {
@@ -22,20 +27,19 @@ namespace details {
             tsl::sh::probing::quadratic>;
 
     template<typename T>
-    auto default_construct_set() {
+    typename T::Set default_construct_set() {
         using Type = typename T::value_type;
         return typename T::Set(T::Set::DEFAULT_INIT_BUCKET_COUNT, std::hash<Type>(), std::equal_to<Type>(),
                                typename T::Allocator(), T::Set::DEFAULT_MAX_LOAD_FACTOR);
     }
 
-    /**
-     *  checks if all values of the set are in the initializer_list and than if the lengths are equal.
+    /** checks if all values of the set are in the initializer_list and than if the lengths are equal.
      *  So basically Set \subset l and |Set| == |l|.
      *  Needs 'set.contains(.)' to work correctly.
      */
     template <typename Set>
     bool is_equal(Set const& set, std::initializer_list<typename Set::value_type> l) {
-        return std::all_of(l.begin(), l.end(), [&set](auto i){return set.contains(i);})
+        return std::all_of(l.begin(), l.end(), [&set](typename Set::value_type i){return set.contains(i);})
             and set.size() == l.size();
     }
 }
@@ -75,7 +79,7 @@ void iterator_access_multi(std::initializer_list<typename T::value_type> l) {
     std::sort(l_sorted.begin(), l_sorted.end());
     std::sort(set_sorted.begin(), set_sorted.end());
     BOOST_TEST_REQUIRE(std::equal(l_sorted.begin(), l_sorted.end(),
-                                  set_sorted.begin(), set_sorted.end()),
+                                  set_sorted.begin()),
                        "iterating over the set didn't work");
 }
 
@@ -95,6 +99,7 @@ struct CUSTOM {
 };
 
 
+BOOST_AUTO_TEST_SUITE(fancy_pointers)
 BOOST_AUTO_TEST_SUITE(sparse_hash_set_tests)
 
 BOOST_AUTO_TEST_CASE(std_alloc_compiles) {construction<STD<int>>();}
@@ -109,20 +114,14 @@ BOOST_AUTO_TEST_CASE(custom_alloc_iterator_insert) {iterator_insert<CUSTOM<int>>
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int>>(42);}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
 
-BOOST_AUTO_TEST_SUITE_END()
-
-#include <tsl/sparse_set.h>
-
-BOOST_AUTO_TEST_SUITE(test_full_set)
-
 BOOST_AUTO_TEST_CASE(full_set) {
-   tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;
-   std::vector<int> data = {1,2,3,4,5,6,7,8,9};
-   set.insert(data.begin(), data.end());
-   std::cout << std::boolalpha;
-   for (auto d : data) {
-       std::cout << d << " in set: " << set.contains(d) << std::endl;
-   }
-
+    tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;
+    std::vector<int> data = {1,2,3,4,5,6,7,8,9};
+    set.insert(data.begin(), data.end());
+    auto check = [&set](int d) {return set.contains(d);};
+    BOOST_TEST_REQUIRE(data.size() == set.size(), "size did not match");
+    BOOST_TEST_REQUIRE(std::all_of(data.begin(), data.end(), check), "Set did not contain all values");
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

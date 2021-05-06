@@ -1,12 +1,16 @@
-//
-// Created by lukas on 22.04.21.
-//
+/** @file
+ * @brief Checks for fancy pointer support in the sparse_hash implementation for pair values (maps).
+ */
+
 #include <boost/test/unit_test.hpp>
+#include <tsl/sparse_map.h>
 #include <tsl/sparse_hash.h>
 #include "CustomAllocator.h"
 
+/* Tests are analogous to the  tests in sparse_array_tests.cpp.
+ * The template parameter now also holds the value_type.
+ */
 namespace details {
-
     template<typename Key, typename T>
     struct KeySelect {
         using key_type = Key;
@@ -38,7 +42,7 @@ namespace details {
             tsl::sh::probing::quadratic>;
 
     template<typename T>
-    auto default_construct_map() {
+    typename T::Map default_construct_map() {
         using Key = typename T::key_type;
         return typename T::Map(T::Map::DEFAULT_INIT_BUCKET_COUNT,
                         std::hash<Key>(),
@@ -47,9 +51,8 @@ namespace details {
                         T::Map::DEFAULT_MAX_LOAD_FACTOR);
     }
 
-    /**
-     *  checks if all values of the set are in the initializer_list and than if the lengths are equal.
-     *  So basically Set \subset l and |Met| == |l|.
+    /** Checks if all values of the map are in the initializer_list and than if the lengths are equal.
+     *  So basically Map \subset l and |Map| == |l|.
      *  Needs 'map.contains(.)' and 'map.at(.)' to work correctly.
      */
     template <typename Map>
@@ -96,8 +99,8 @@ void iterator_access_multi(std::initializer_list<typename T::value_type> l) {
     std::sort(l_sorted.begin(), l_sorted.end());
     std::sort(map_sorted.begin(), map_sorted.end());
     BOOST_TEST_REQUIRE(std::equal(l_sorted.begin(), l_sorted.end(),
-                                  map_sorted.begin(), map_sorted.end()),
-                       "iterating over the set didn't work");
+                                  map_sorted.begin()),
+                       "iterating over the map didn't work");
 }
 
 
@@ -118,6 +121,7 @@ struct CUSTOM {
 };
 
 
+BOOST_AUTO_TEST_SUITE(fancy_pointers)
 BOOST_AUTO_TEST_SUITE(sparse_hash_map_tests)
 
 BOOST_AUTO_TEST_CASE(std_alloc_compiles) {construction<STD<int, int>>();}
@@ -132,28 +136,19 @@ BOOST_AUTO_TEST_CASE(custom_alloc_iterator_insert) {insert<CUSTOM<int, int>>({{1
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int, int>>({1,42});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int, int>>({{1,2},{3,4},{5,6}});}
 
+BOOST_AUTO_TEST_CASE(full_map) {
+    tsl::sparse_map<int, int, std::hash<int>, std::equal_to<int>, OffsetAllocator<std::pair<int,int>>> map;
+    std::vector<std::pair<int,int>> data = {
+            {0,1},{2,3},{4,5},{6,7},{8,9}
+    };
+    map.insert(data.begin(), data.end());
+    auto check = [&map](std::pair<int,int> p) {
+        if (!map.contains(p.first)) return false;
+        return map.at(p.first) == p.second;
+    };
+    BOOST_TEST_REQUIRE(data.size() == map.size(), "size did not match");
+    BOOST_TEST_REQUIRE(std::all_of(data.begin(), data.end(), check), "map did not contain all values");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
-
-#include <tsl/sparse_map.h>
-
-BOOST_AUTO_TEST_SUITE(test_full_map)
-
-    BOOST_AUTO_TEST_CASE(full_map) {
-        tsl::sparse_map<int, int, std::hash<int>, std::equal_to<int>,
-                OffsetAllocator<std::pair<int,int>>> map;
-        std::vector<std::pair<int,int>> data = {
-                {0,1},{2,3},{4,5},{6,7},{8,9}
-        };
-        map.insert(data.begin(), data.end());
-        std::cout << std::boolalpha;
-        for (auto d : data) {
-            std::pair<bool,bool> res (map.contains(d.first), false);
-            if (res.first) res.second = map[d.first] == d.second;
-            std::cout << "(" << d.first << ", " << d.second << "): "
-                      << "(" << res.first << ", " << res.second << ")\n";
-
-
-        }
-
-    }
 BOOST_AUTO_TEST_SUITE_END()

@@ -177,39 +177,41 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 }  // namespace detail_popcount
 
 namespace detail_sparse_hash {
-/* with 14-features
-template <typename T>
-T *to_address(T *v) noexcept { return v; }
-
-namespace fancy_ptr_detail {
+    /* to_address can convert any raw or fancy pointer into a raw pointer.
+     * It is needed for the allocator construct and destroy calls.
+     * This specific implementation is based on boost 1.71.0.
+     */
+#if __cplusplus >= 201400L  // with 14-features
     template <typename T>
-    inline T *ptr_address(T *v, int) noexcept { return v; }
+    T *to_address(T *v) noexcept { return v; }
 
-    template <typename T>
-    inline auto ptr_address(const T &v, int) noexcept
-    -> decltype(std::pointer_traits<T>::to_address(v)) {
-        return std::pointer_traits<T>::to_address(v);
+    namespace fancy_ptr_detail {
+        template <typename T>
+        inline T *ptr_address(T *v, int) noexcept { return v; }
+
+        template <typename T>
+        inline auto ptr_address(const T &v, int) noexcept
+        -> decltype(std::pointer_traits<T>::to_address(v)) {
+            return std::pointer_traits<T>::to_address(v);
+        }
+        template <typename T>
+        inline auto ptr_address(const T &v, long) noexcept {
+            return fancy_ptr_detail::ptr_address(v.operator->(), 0);
+        }
+    } // namespace detail
+
+    template <typename T> inline auto to_address(const T &v) noexcept {
+        return fancy_ptr_detail::ptr_address(v, 0);
     }
+#else // without 14-features
     template <typename T>
-    inline auto ptr_address(const T &v, long) noexcept {
-        return fancy_ptr_detail::ptr_address(v.operator->(), 0);
+    inline T *to_address(T *v) noexcept { return v; }
+
+    template <typename T>
+    inline typename std::pointer_traits<T>::element_type * to_address(const T &v) noexcept {
+        return detail_sparse_hash::to_address(v.operator->());
     }
-} // namespace detail
-
-template <typename T> inline auto to_address(const T &v) noexcept {
-    return fancy_ptr_detail::ptr_address(v, 0);
-}
-// with 14-features */
-
-//* without 14-features
-template <typename T>
-inline T *to_address(T *v) noexcept { return v; }
-
-template <typename T>
-inline typename std::pointer_traits<T>::element_type * to_address(const T &v) noexcept {
-    return detail_sparse_hash::to_address(v.operator->());
-}
-// without 14-features */
+#endif
 
 template <typename T>
 struct make_void {
@@ -1048,8 +1050,8 @@ class sparse_hash : private Allocator,
   using hasher = Hash;
   using key_equal = KeyEqual;
   using allocator_type = Allocator;
-  using reference = value_type &; //TODO does it need change?
-  using const_reference = const value_type &; //TODO does it need change?
+  using reference = value_type &; //does it need to be changed for fancy pointers?
+  using const_reference = const value_type &;
   using size_type = typename std::allocator_traits<allocator_type>::size_type;
   using pointer = typename std::allocator_traits<allocator_type>::pointer;
   using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;

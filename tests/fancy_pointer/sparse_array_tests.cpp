@@ -1,6 +1,6 @@
-//
-// Created by lukas on 22.04.21.
-//
+/** @file
+ * @brief Checks for fancy pointer support in the sparse_array implementation.
+ */
 
 #include <boost/test/unit_test.hpp>
 #include <tsl/sparse_hash.h>
@@ -9,9 +9,11 @@
 // Globals
 constexpr auto MAX_INDEX = 32; //BITMAP_NB_BITS
 
-/* templated tests
- * T is a struct with T::Array and T::Allocator.
-*/
+/* Tests are formulated via templates to reduce code duplication.
+ * The template parameter contains the Allocator type and the shorthand "Array" for the sparse_array
+ * (with all template parameter already inserted).
+ */
+
 template <typename T>
 void compilation() {
     typename T::Array test;
@@ -26,7 +28,7 @@ void construction() {
 
 namespace details {
     template<typename T>
-    auto generate_test_array(typename T::Allocator &a) {
+    typename T::Array generate_test_array(typename T::Allocator &a) {
         typename T::Array arr(MAX_INDEX, a);
         for (std::size_t i = 0; i < MAX_INDEX; ++i) {
             arr.set(a, i, i);
@@ -35,7 +37,7 @@ namespace details {
     }
 
     template<typename T>
-    auto generate_check_for_test_array() {
+    std::vector<typename T::Allocator::value_type> generate_check_for_test_array() {
         std::vector<typename T::Allocator::value_type> check(MAX_INDEX);
         for (std::size_t i = 0; i < MAX_INDEX; ++i) {
             check[i] = i;
@@ -81,7 +83,9 @@ void move_construction() {
 
 
 
-// Template test structs
+/*
+ * This are the types you can give the tests as template parameters.
+ */
 template <typename T, tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
 struct STD {
     using Allocator = std::allocator<T>;
@@ -95,9 +99,11 @@ struct CUSTOM {
 };
 
 
-/* Tests.
- * I don't use the boost template test cases because with this I can set the title of every test case.
+
+/* The instantiation of the tests.
+ * I don't use the boost template test cases because with this I can set the title of every test case myself.
  */
+BOOST_AUTO_TEST_SUITE(fancy_pointers)
 BOOST_AUTO_TEST_SUITE(sparse_array_tests)
 
 BOOST_AUTO_TEST_CASE(std_alloc_compile) {compilation<STD<int>>();}
@@ -112,4 +118,5 @@ BOOST_AUTO_TEST_CASE(custom_alloc_set) {set<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_copy_construction) {copy_construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_move_construction) {move_construction<CUSTOM<int>>();}
 
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
