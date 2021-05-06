@@ -11,8 +11,9 @@ add_executable(tsl_sparse_map_tests "main.cpp"
 
 add_executable(tsl_fancy_pointer_tests "fancy_pointer/main.cpp"
         "fancy_pointer/sparse_array_tests.cpp"
-        "fancy_pointer/sparse_hash_tests.cpp"
-        "fancy_pointer/CustomAllocator.h")
+        "fancy_pointer/sparse_hash_set_tests.cpp"
+        "fancy_pointer/CustomAllocator.h"
+        "fancy_pointer/sparse_hash_map_tests.cpp")
 
 
 target_compile_features(tsl_sparse_map_tests PRIVATE cxx_std_11)

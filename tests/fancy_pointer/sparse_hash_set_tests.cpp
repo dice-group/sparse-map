@@ -95,7 +95,7 @@ struct CUSTOM {
 };
 
 
-BOOST_AUTO_TEST_SUITE(sparse_hash_tests)
+BOOST_AUTO_TEST_SUITE(sparse_hash_set_tests)
 
 BOOST_AUTO_TEST_CASE(std_alloc_compiles) {construction<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_insert) {insert<STD<int>>({1,2,3,4});}
