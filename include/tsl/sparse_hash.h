@@ -40,8 +40,6 @@
 #include <vector>
 
 #include "sparse_growth_policy.h"
-//TODO quick and dirty
-#include <boost/core/pointer_traits.hpp>
 
 #ifdef __INTEL_COMPILER
 #include <immintrin.h>  // For _popcnt32 and _popcnt64
@@ -179,16 +177,39 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 }  // namespace detail_popcount
 
 namespace detail_sparse_hash {
-/** This is a quick and dirty way of adding to_address to the code.
- * In the long run the "real" function must be inserted without boost dependability.
- * @tparam T
- * @param v
- * @return
- */
-template<typename T>
-auto to_address(T v) {
-    return boost::to_address(v);
+/* with 14-features
+template <typename T>
+T *to_address(T *v) noexcept { return v; }
+
+namespace fancy_ptr_detail {
+    template <typename T>
+    inline T *ptr_address(T *v, int) noexcept { return v; }
+
+    template <typename T>
+    inline auto ptr_address(const T &v, int) noexcept
+    -> decltype(std::pointer_traits<T>::to_address(v)) {
+        return std::pointer_traits<T>::to_address(v);
+    }
+    template <typename T>
+    inline auto ptr_address(const T &v, long) noexcept {
+        return fancy_ptr_detail::ptr_address(v.operator->(), 0);
+    }
+} // namespace detail
+
+template <typename T> inline auto to_address(const T &v) noexcept {
+    return fancy_ptr_detail::ptr_address(v, 0);
 }
+// with 14-features */
+
+//* without 14-features
+template <typename T>
+inline T *to_address(T *v) noexcept { return v; }
+
+template <typename T>
+inline typename std::pointer_traits<T>::element_type * to_address(const T &v) noexcept {
+    return detail_sparse_hash::to_address(v.operator->());
+}
+// without 14-features */
 
 template <typename T>
 struct make_void {
@@ -691,11 +712,11 @@ class sparse_array {
   static void construct_value(allocator_type &alloc, pointer value,
                               Args &&... value_args) {
     std::allocator_traits<allocator_type>::construct(
-        alloc, to_address(value), std::forward<Args>(value_args)...);
+        alloc, detail_sparse_hash::to_address(value), std::forward<Args>(value_args)...);
   }
 
   static void destroy_value(allocator_type &alloc, pointer value) noexcept {
-    std::allocator_traits<allocator_type>::destroy(alloc, to_address(value));
+    std::allocator_traits<allocator_type>::destroy(alloc, detail_sparse_hash::to_address(value));
   }
 
   static void destroy_and_deallocate_values(
@@ -1118,7 +1139,7 @@ class sparse_hash : private Allocator,
 
     reference operator*() const { return *m_sparse_array_it; }
 
-    //TODO with fancy pointers addressof might be problematic.
+    //with fancy pointers addressof might be problematic.
     pointer operator->() const { return std::pointer_traits<pointer>::pointer_to(*m_sparse_array_it); }
 
     sparse_iterator &operator++() {
