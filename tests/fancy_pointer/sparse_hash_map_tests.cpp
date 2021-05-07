@@ -18,7 +18,7 @@ namespace details {
         const key_type &operator()(std::pair<Key, T> const &key_value) const noexcept {
             return key_value.first;
         }
-        const key_type &operator()(std::pair<Key, T> &key_value) noexcept {
+        key_type &operator()(std::pair<Key, T> &key_value) noexcept {
             return key_value.first;
         }
     };
