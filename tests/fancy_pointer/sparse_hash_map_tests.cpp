@@ -2,6 +2,7 @@
  * @brief Checks for fancy pointer support in the sparse_hash implementation for pair values (maps).
  */
 
+#include <unordered_map>
 #include <boost/test/unit_test.hpp>
 #include <tsl/sparse_map.h>
 #include <tsl/sparse_hash.h>
@@ -28,7 +29,7 @@ namespace details {
         const value_type &operator()(std::pair<Key, T> const &key_value) const noexcept {
             return key_value.second;
         }
-        const value_type &operator()(std::pair<Key, T> &key_value) noexcept {
+        value_type &operator()(std::pair<Key, T> &key_value) noexcept {
             return key_value.second;
         }
     };
@@ -61,6 +62,13 @@ namespace details {
            return map.contains(p.first) && map.at(p.first) == p.second;
         };
         return std::all_of(l.begin(), l.end(), check_in_map) && map.size() == l.size();
+    }
+    template <typename Map1, typename Map2>
+    bool is_equal(Map1 const& custom_map, Map2 const &normal_map) {
+        auto check_in_map = [&custom_map](typename Map2::value_type const& p) {
+            return custom_map.count(p.first) == 1 && custom_map.at(p.first) == p.second;
+        };
+        return std::all_of(normal_map.begin(), normal_map.end(), check_in_map) && custom_map.size() == normal_map.size();
     }
 }
 
@@ -103,6 +111,18 @@ void iterator_access_multi(std::initializer_list<typename T::value_type> l) {
                        "iterating over the map didn't work");
 }
 
+template<typename T>
+void value(std::initializer_list<typename T::value_type> l, typename T::value_type to_change) {
+    auto map = details::default_construct_map<T>();
+    map.insert(l.begin(), l.end());
+    map[to_change.first] = to_change.second;
+
+    std::unordered_map<typename T::value_type::first_type, typename T::value_type::second_type> check(l.begin(), l.end());
+    check[to_change.first] = to_change.second;
+
+    BOOST_TEST_REQUIRE(details::is_equal(map, check), "changing a single value didn't work");
+}
+
 
 template<typename Key, typename T>
 struct STD {
@@ -129,12 +149,14 @@ BOOST_AUTO_TEST_CASE(std_alloc_insert) {insert<STD<int, int>>({{1,2},{3,4},{5,6}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_insert) {insert<STD<int, int>>({{1,2},{3,4},{5,6}});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_access) {iterator_access<STD<int, int>>({1,42});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_access_multi) {iterator_access_multi<STD<int, int>>({{1,2},{3,4},{5,6}});}
+BOOST_AUTO_TEST_CASE(std_alloc_value) {value<STD<int, int>>({{1,2},{3,4},{5,6}}, {1, 42});}
 
 BOOST_AUTO_TEST_CASE(custom_alloc_compiles) {construction<CUSTOM<int, int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_insert) {insert<CUSTOM<int, int>>({{1,2},{3,4},{5,6}});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_insert) {insert<CUSTOM<int, int>>({{1,2},{3,4},{5,6}});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int, int>>({1,42});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int, int>>({{1,2},{3,4},{5,6}});}
+BOOST_AUTO_TEST_CASE(custom_alloc_value) {value<CUSTOM<int, int>>({{1,2},{3,4},{5,6}}, {1, 42});}
 
 BOOST_AUTO_TEST_CASE(full_map) {
     tsl::sparse_map<int, int, std::hash<int>, std::equal_to<int>, OffsetAllocator<std::pair<int,int>>> map;
