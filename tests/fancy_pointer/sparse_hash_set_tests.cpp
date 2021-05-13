@@ -84,6 +84,52 @@ void iterator_access_multi(std::initializer_list<typename T::value_type> l) {
 }
 
 
+template <typename T>
+void const_iterator_access_multi(std::initializer_list<typename T::value_type> l) {
+    auto set = details::default_construct_set<T>();
+    set.insert(l.begin(), l.end());
+    std::vector<typename T::value_type> l_sorted = l;
+    std::vector<typename T::value_type> set_sorted(set.cbegin(), set.cend());
+    std::sort(l_sorted.begin(), l_sorted.end());
+    std::sort(set_sorted.begin(), set_sorted.end());
+    BOOST_TEST_REQUIRE(std::equal(l_sorted.begin(), l_sorted.end(),
+                                  set_sorted.begin()),
+                       "const iterating over the set didn't work");
+}
+
+template <typename T>
+void erase(std::initializer_list<typename T::value_type> l, typename T::value_type extra_value) {
+    auto set = details::default_construct_set<T>();
+    set.insert(extra_value);
+    set.insert(l.begin(), l.end());
+    //find is not tested yet
+    auto iter = set.begin();
+    for(; *iter != extra_value; ++iter);
+    set.erase(iter);
+    BOOST_TEST_REQUIRE(details::is_equal(set, l), "erase did not work as expected");
+}
+
+template <typename T>
+void erase_with_const_iter(std::initializer_list<typename T::value_type> l, typename T::value_type extra_value) {
+    auto set = details::default_construct_set<T>();
+    set.insert(extra_value);
+    set.insert(l.begin(), l.end());
+    //find is not tested yet
+    auto iter = set.cbegin();
+    for(; *iter != extra_value; ++iter);
+    set.erase(iter);
+    BOOST_TEST_REQUIRE(details::is_equal(set, l), "erase did not work as expected");
+}
+
+template <typename T>
+void find(std::initializer_list<typename T::value_type> l, typename T::value_type search_value, bool is_in_list) {
+    auto set = details::default_construct_set<T>();
+    set.insert(l.begin(), l.end());
+    auto iter = set.find(search_value);
+    bool found = iter != set.end();
+    BOOST_TEST_REQUIRE((found == is_in_list), "erase did not work as expected");
+}
+
 template<typename T>
 struct STD {
     using value_type = T;
@@ -107,12 +153,25 @@ BOOST_AUTO_TEST_CASE(std_alloc_insert) {insert<STD<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_insert) {iterator_insert<STD<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_access) {iterator_access<STD<int>>(42);}
 BOOST_AUTO_TEST_CASE(std_alloc_iterator_access_multi) {iterator_access_multi<STD<int>>({1,2,3,4});}
+BOOST_AUTO_TEST_CASE(std_alloc_const_iterator_access_multi) {const_iterator_access_multi<STD<int>>({1,2,3,4});}
+BOOST_AUTO_TEST_CASE(std_erase) {erase<STD<int>>({1,2,3,4}, 5);}
+BOOST_AUTO_TEST_CASE(std_erase_with_const_iter) {erase_with_const_iter<STD<int>>({1,2,3,4}, 5);}
+BOOST_AUTO_TEST_CASE(std_find_true) {find<STD<int>>({1,2,3,4}, 4, true);}
+BOOST_AUTO_TEST_CASE(std_find_false) {find<STD<int>>({1,2,3,4}, 5, false);}
 
 BOOST_AUTO_TEST_CASE(custom_alloc_compiles) {construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_insert) {insert<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_insert) {iterator_insert<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int>>(42);}
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
+BOOST_AUTO_TEST_CASE(custom_alloc_const_iterator_access_multi) {const_iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
+BOOST_AUTO_TEST_CASE(custom_erase) {erase<CUSTOM<int>>({1,2,3,4}, 5);}
+//TODO
+/*
+BOOST_AUTO_TEST_CASE(custom_erase_with_const_iter) {erase_with_const_iter<CUSTOM<int>>({1,2,3,4}, 5);}
+BOOST_AUTO_TEST_CASE(custom_find_true) {find<CUSTOM<int>>({1,2,3,4}, 4, true);}
+BOOST_AUTO_TEST_CASE(custom_find_false) {find<CUSTOM<int>>({1,2,3,4}, 5, false);}
+*/
 
 BOOST_AUTO_TEST_CASE(full_set) {
     tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;

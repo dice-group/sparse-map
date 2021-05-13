@@ -1102,10 +1102,10 @@ class sparse_hash : private Allocator,
 
    public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = const typename sparse_hash::value_type;
+    using value_type = const sparse_hash::value_type;
     using difference_type = std::ptrdiff_t;
     using reference = value_type &;
-    using pointer = value_type *;
+    using pointer = sparse_hash::const_pointer;
 
     sparse_iterator() noexcept {}
 
@@ -1142,7 +1142,7 @@ class sparse_hash : private Allocator,
     reference operator*() const { return *m_sparse_array_it; }
 
     //with fancy pointers addressof might be problematic.
-    pointer operator->() const { return std::pointer_traits<pointer>::pointer_to(*m_sparse_array_it); }
+    pointer operator->() const { return std::addressof(*m_sparse_array_it); }
 
     sparse_iterator &operator++() {
       tsl_sh_assert(m_sparse_array_it != nullptr);
@@ -1398,12 +1398,13 @@ class sparse_hash : private Allocator,
 
   const_iterator cbegin() const noexcept {
     auto begin = m_sparse_buckets_data.cbegin();
-    while (begin != m_sparse_buckets_data.cend() && begin->empty()) {
+    // '->' is problematic with fancy pointers
+    while (begin != m_sparse_buckets_data.cend() && (*begin).empty()) {
       ++begin;
     }
 
     return const_iterator(begin, (begin != m_sparse_buckets_data.cend())
-                                     ? begin->cbegin()
+                                     ? (*begin).cbegin()
                                      : nullptr);
   }
 
@@ -1530,23 +1531,24 @@ class sparse_hash : private Allocator,
    */
   iterator erase(iterator pos) {
     tsl_sh_assert(pos != end() && m_nb_elements > 0);
+    // '->' is problematic with fancy_pointers
     auto it_sparse_array_next =
-        pos.m_sparse_buckets_it->erase(*this, pos.m_sparse_array_it);
+        (*pos.m_sparse_buckets_it).erase(*this, pos.m_sparse_array_it);
     m_nb_elements--;
     m_nb_deleted_buckets++;
 
-    if (it_sparse_array_next == pos.m_sparse_buckets_it->end()) {
+    if (it_sparse_array_next == (*pos.m_sparse_buckets_it).end()) {
       auto it_sparse_buckets_next = pos.m_sparse_buckets_it;
       do {
         ++it_sparse_buckets_next;
       } while (it_sparse_buckets_next != m_sparse_buckets_data.end() &&
-               it_sparse_buckets_next->empty());
+              (*it_sparse_buckets_next).empty());
 
       if (it_sparse_buckets_next == m_sparse_buckets_data.end()) {
         return end();
       } else {
         return iterator(it_sparse_buckets_next,
-                        it_sparse_buckets_next->begin());
+                        (*it_sparse_buckets_next).begin());
       }
     } else {
       return iterator(pos.m_sparse_buckets_it, it_sparse_array_next);

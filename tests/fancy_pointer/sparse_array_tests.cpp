@@ -81,6 +81,15 @@ void move_construction() {
     moved_to.clear(a);
 }
 
+template <typename T>
+void const_iterator() {
+    typename T::Allocator a;
+    auto test = details::generate_test_array<T>(a);
+    auto const_iter = test.cbegin();
+    BOOST_TEST_REQUIRE((std::is_same<decltype(const_iter), typename T::Const_Iterator>::value),
+                       "const iterator has the wrong type");
+    test.clear(a);
+}
 
 
 /*
@@ -90,12 +99,14 @@ template <typename T, tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
 struct STD {
     using Allocator = std::allocator<T>;
     using Array = tsl::detail_sparse_hash::sparse_array<T, std::allocator<T>, Sparsity>;
+    using Const_Iterator = T const*;
 };
 
 template<typename T, tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
 struct CUSTOM {
     using Allocator = OffsetAllocator<T>;
     using Array = tsl::detail_sparse_hash::sparse_array<T, OffsetAllocator<T>, Sparsity>;
+    using Const_Iterator = boost::interprocess::offset_ptr<const T>;
 };
 
 
@@ -111,12 +122,14 @@ BOOST_AUTO_TEST_CASE(std_alloc_construction) {construction<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_set) {set<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_copy_construction) {copy_construction<STD<int>>();}
 BOOST_AUTO_TEST_CASE(std_alloc_move_construction) {move_construction<STD<int>>();}
+BOOST_AUTO_TEST_CASE(std_const_iterator) {const_iterator<STD<int>>();}
 
 BOOST_AUTO_TEST_CASE(custom_alloc_compile) {compilation<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_construction) {construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_set) {set<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_copy_construction) {copy_construction<CUSTOM<int>>();}
 BOOST_AUTO_TEST_CASE(custom_alloc_move_construction) {move_construction<CUSTOM<int>>();}
+BOOST_AUTO_TEST_CASE(custom_const_iterator) {const_iterator<CUSTOM<int>>();}
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

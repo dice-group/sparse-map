@@ -16,9 +16,9 @@ struct OffsetAllocator {
     using value_type = T;
     template <typename P> using offset_ptr = boost::interprocess::offset_ptr<P>;
     using pointer = offset_ptr<value_type>;
-    using const_pointer = const offset_ptr<value_type>;
+    using const_pointer = offset_ptr<const value_type>;
     using void_pointer = offset_ptr<void>;
-    using const_void_pointer = const offset_ptr<void>;
+    using const_void_pointer = offset_ptr<const void>;
     using difference_type = typename offset_ptr<value_type>::difference_type;
 
     OffsetAllocator() noexcept = default;
