@@ -176,6 +176,16 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 #endif
 }  // namespace detail_popcount
 
+
+// helper for const_cast (TODO cleanup)
+    template <typename T>
+    struct Remove_Const {
+        template <typename V>
+        static auto cast_const(V iter) {
+            return const_cast<T>(iter);
+        }
+    };
+
 namespace detail_sparse_hash {
     /* to_address can convert any raw or fancy pointer into a raw pointer.
      * It is needed for the allocator construct and destroy calls.
@@ -212,6 +222,7 @@ namespace detail_sparse_hash {
         return detail_sparse_hash::to_address(v.operator->());
     }
 #endif
+
 
 template <typename T>
 struct make_void {
@@ -623,7 +634,7 @@ class sparse_array {
   }
 
   static iterator mutable_iterator(const_iterator pos) {
-    return const_cast<iterator>(pos);
+    return ::tsl::Remove_Const<iterator>::template cast_const<const_iterator>(pos);
   }
 
   template <class Serializer>
