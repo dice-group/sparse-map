@@ -5,6 +5,7 @@
 #include <boost/test/unit_test.hpp>
 #include <tsl/sparse_set.h>
 #include <tsl/sparse_hash.h>
+#include <tsl/boost_offset_pointer.h>
 #include "CustomAllocator.h"
 
 /* Tests are analogous to the  tests in sparse_array_tests.cpp.
@@ -166,12 +167,9 @@ BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access) {iterator_access<CUSTOM<int>>
 BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_alloc_const_iterator_access_multi) {const_iterator_access_multi<CUSTOM<int>>({1,2,3,4});}
 BOOST_AUTO_TEST_CASE(custom_erase) {erase<CUSTOM<int>>({1,2,3,4}, 5);}
-//TODO
-/*
 BOOST_AUTO_TEST_CASE(custom_erase_with_const_iter) {erase_with_const_iter<CUSTOM<int>>({1,2,3,4}, 5);}
 BOOST_AUTO_TEST_CASE(custom_find_true) {find<CUSTOM<int>>({1,2,3,4}, 4, true);}
 BOOST_AUTO_TEST_CASE(custom_find_false) {find<CUSTOM<int>>({1,2,3,4}, 5, false);}
-*/
 
 BOOST_AUTO_TEST_CASE(full_set) {
     tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;

@@ -177,11 +177,16 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 }  // namespace detail_popcount
 
 
-// helper for const_cast (TODO cleanup)
+/* Replacement for const_cast in sparse_array.
+ * Can be overloaded for specific fancy pointers
+ * (see: include/tsl/boost_offset_pointer.h).
+ * This is just a workaround.
+ * The clean way would be to change the implementation to stop using const_cast.
+ */
     template <typename T>
     struct Remove_Const {
         template <typename V>
-        static auto cast_const(V iter) {
+        static T remove(V iter) {
             return const_cast<T>(iter);
         }
     };
@@ -634,7 +639,7 @@ class sparse_array {
   }
 
   static iterator mutable_iterator(const_iterator pos) {
-    return ::tsl::Remove_Const<iterator>::template cast_const<const_iterator>(pos);
+    return ::tsl::Remove_Const<iterator>::template remove<const_iterator>(pos);
   }
 
   template <class Serializer>
