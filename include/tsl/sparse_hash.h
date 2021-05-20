@@ -1066,7 +1066,7 @@ class sparse_hash : private Allocator,
   using hasher = Hash;
   using key_equal = KeyEqual;
   using allocator_type = Allocator;
-  using reference = value_type &; //does it need to be changed for fancy pointers?
+  using reference = value_type &;
   using const_reference = const value_type &;
   using size_type = typename std::allocator_traits<allocator_type>::size_type;
   using pointer = typename std::allocator_traits<allocator_type>::pointer;
@@ -1164,7 +1164,7 @@ class sparse_hash : private Allocator,
       tsl_sh_assert(m_sparse_array_it != nullptr);
       ++m_sparse_array_it;
 
-      //fancy pointers have a problem with ->
+      //vector iterator with fancy pointers have a problem with ->
       if (m_sparse_array_it == (*m_sparse_buckets_it).end()) {
         do {
           if ((*m_sparse_buckets_it).last()) {
@@ -1399,12 +1399,12 @@ class sparse_hash : private Allocator,
    */
   iterator begin() noexcept {
     auto begin = m_sparse_buckets_data.begin();
-    //fancy pointers seem to have a problem with "->" in this context
+    //vector iterator with fancy pointers have a problem with ->
     while (begin != m_sparse_buckets_data.end() && (*begin).empty()) {
       ++begin;
     }
 
-    //fancy pointers seem to have a problem with "->" in this context
+    //vector iterator with fancy pointers have a problem with ->
     return iterator(begin, (begin != m_sparse_buckets_data.end())
                                ? (*begin).begin()
                                : nullptr);
@@ -1414,7 +1414,7 @@ class sparse_hash : private Allocator,
 
   const_iterator cbegin() const noexcept {
     auto begin = m_sparse_buckets_data.cbegin();
-    // '->' is problematic with fancy pointers
+    //vector iterator with fancy pointers have a problem with ->
     while (begin != m_sparse_buckets_data.cend() && (*begin).empty()) {
       ++begin;
     }
@@ -1547,7 +1547,7 @@ class sparse_hash : private Allocator,
    */
   iterator erase(iterator pos) {
     tsl_sh_assert(pos != end() && m_nb_elements > 0);
-    // '->' is problematic with fancy_pointers
+      //vector iterator with fancy pointers have a problem with ->
     auto it_sparse_array_next =
         (*pos.m_sparse_buckets_it).erase(*this, pos.m_sparse_array_it);
     m_nb_elements--;
