@@ -445,7 +445,8 @@ class sparse_array {
         m_capacity(0),
         m_last_array(last_bucket) {}
 
-  sparse_array(size_type capacity, Allocator &alloc)
+  //sparse_array(size_type capacity, Allocator &alloc)
+  sparse_array(size_type capacity, Allocator alloc)
       : m_values(nullptr),
         m_bitmap_vals(0),
         m_bitmap_deleted_vals(0),
@@ -1082,9 +1083,9 @@ class sparse_hash : private Allocator,
   using sparse_buckets_allocator = typename std::allocator_traits<
       allocator_type>::template rebind_alloc<sparse_array>;
   using sparse_buckets_container =
-      std::vector<sparse_array, sparse_buckets_allocator>;
+      std::vector<sparse_array, sparse_buckets_allocator>;//here
 
- public:
+public:
   /**
    * The `operator*()` and `operator->()` methods return a const reference and
    * const pointer respectively to the stored value type (`Key` for a set,
@@ -1231,7 +1232,7 @@ class sparse_hash : private Allocator,
        * We can't use `vector(size_type count, const T& value, const Allocator&
        * alloc)` as it requires the value T to be copyable.
        */
-      m_sparse_buckets_data.resize(
+      m_sparse_buckets_data.resize( //TODO: this is the current critical point
           sparse_array::nb_sparse_buckets(bucket_count));
       m_sparse_buckets = m_sparse_buckets_data.data();
 
