@@ -128,7 +128,7 @@ void find(std::initializer_list<typename T::value_type> l, typename T::value_typ
     set.insert(l.begin(), l.end());
     auto iter = set.find(search_value);
     bool found = iter != set.end();
-    BOOST_TEST_REQUIRE((found == is_in_list), "erase did not work as expected");
+    BOOST_TEST_REQUIRE((found == is_in_list), "find did not work as expected");
 }
 
 template<typename T>
