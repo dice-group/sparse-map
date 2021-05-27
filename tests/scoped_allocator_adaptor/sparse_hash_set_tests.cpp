@@ -45,13 +45,7 @@ BOOST_AUTO_TEST_SUITE(sparse_hash_set_tests)
 
 BOOST_AUTO_TEST_CASE(normal_construction){construction<NORMAL<int>>();}
 
-BOOST_AUTO_TEST_CASE(scoped_construction){
-  SCOPED<int>::Set (0,
-                   std::hash<int>(),
-                   std::equal_to<int>(),
-                   SCOPED<int>::Allocator(),
-                   200);
-}
+BOOST_AUTO_TEST_CASE(scoped_construction){construction<SCOPED<int>>();}
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
