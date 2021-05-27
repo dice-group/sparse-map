@@ -1091,9 +1091,9 @@ class sparse_hash : private Allocator,
   using sparse_buckets_allocator = typename std::allocator_traits<
       allocator_type>::template rebind_alloc<sparse_array>;
   using sparse_buckets_container =
-      std::vector<sparse_array, sparse_buckets_allocator>;//here
+      std::vector<sparse_array, sparse_buckets_allocator>;
 
-public:
+ public:
   /**
    * The `operator*()` and `operator->()` methods return a const reference and
    * const pointer respectively to the stored value type (`Key` for a set,
@@ -1240,7 +1240,7 @@ public:
        * We can't use `vector(size_type count, const T& value, const Allocator&
        * alloc)` as it requires the value T to be copyable.
        */
-      m_sparse_buckets_data.resize( //TODO: this is the current critical point
+      m_sparse_buckets_data.resize(
           sparse_array::nb_sparse_buckets(bucket_count));
       m_sparse_buckets = m_sparse_buckets_data.data();
 
