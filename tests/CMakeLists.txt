@@ -9,7 +9,7 @@ add_executable(tsl_sparse_map_tests "main.cpp"
                                     "sparse_map_tests.cpp"
                                     "sparse_set_tests.cpp")
 
-target_compile_features(tsl_sparse_map_tests PRIVATE cxx_std_11)
+target_compile_features(tsl_sparse_map_tests PRIVATE cxx_std_20)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(tsl_sparse_map_tests PRIVATE -Werror -Wall -Wextra -Wold-style-cast -DTSL_DEBUG -UNDEBUG)

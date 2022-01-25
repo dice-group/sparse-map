@@ -1374,20 +1374,15 @@ class sparse_hash : private Allocator,
     return *this;
   }
 
-  sparse_hash &operator=(sparse_hash &&other) {
+  sparse_hash &operator=(sparse_hash &&other)  noexcept {
     clear();
 
-    if (std::allocator_traits<
-            Allocator>::propagate_on_container_move_assignment::value) {
-      static_cast<Allocator &>(*this) =
-          std::move(static_cast<Allocator &>(other));
-      m_sparse_buckets_data = std::move(other.m_sparse_buckets_data);
-    } else if (static_cast<Allocator &>(*this) !=
-               static_cast<Allocator &>(other)) {
+    if (not std::allocator_traits<
+            Allocator>::propagate_on_container_move_assignment::value
+                    and (static_cast<Allocator &>(*this) != static_cast<Allocator &>(other))) {
       move_buckets_from(std::move(other));
     } else {
-      static_cast<Allocator &>(*this) =
-          std::move(static_cast<Allocator &>(other));
+      static_cast<Allocator &>(*this) = std::move(static_cast<Allocator &>(other));
       m_sparse_buckets_data = std::move(other.m_sparse_buckets_data);
     }
 
@@ -1951,31 +1946,37 @@ class sparse_hash : private Allocator,
       auto index_in_sparse_bucket =
           sparse_array::index_in_sparse_bucket(ibucket);
 
-      if (m_sparse_buckets[sparse_ibucket].has_value(index_in_sparse_bucket)) {
-        auto value_it =
-            m_sparse_buckets[sparse_ibucket].value(index_in_sparse_bucket);
-        if (compare_keys(key, KeySelect()(*value_it))) {
-          return std::make_pair(
-              iterator(m_sparse_buckets_data.begin() + sparse_ibucket,
-                       value_it),
-              false);
-        }
-      } else if (m_sparse_buckets[sparse_ibucket].has_deleted_value(
-                     index_in_sparse_bucket) &&
-                 probe < m_bucket_count) {
-        if (!found_first_deleted_bucket) {
-          found_first_deleted_bucket = true;
-          sparse_ibucket_first_deleted = sparse_ibucket;
-          index_in_sparse_bucket_first_deleted = index_in_sparse_bucket;
-        }
-      } else if (found_first_deleted_bucket) {
-        auto it = insert_in_bucket(sparse_ibucket_first_deleted,
-                                   index_in_sparse_bucket_first_deleted,
-                                   std::forward<Args>(value_type_args)...);
-        m_nb_deleted_buckets--;
+      if (m_sparse_buckets != static_empty_sparse_bucket_ptr()) {
+          if (m_sparse_buckets[sparse_ibucket].has_value(index_in_sparse_bucket)) {
+              auto value_it =
+                      m_sparse_buckets[sparse_ibucket].value(index_in_sparse_bucket);
+              if (compare_keys(key, KeySelect()(*value_it))) {
+                  return std::make_pair(
+                          iterator(m_sparse_buckets_data.begin() + sparse_ibucket,
+                                   value_it),
+                          false);
+              }
+          } else if (m_sparse_buckets[sparse_ibucket].has_deleted_value(
+                  index_in_sparse_bucket) &&
+                     probe < m_bucket_count) {
+              if (!found_first_deleted_bucket) {
+                  found_first_deleted_bucket = true;
+                  sparse_ibucket_first_deleted = sparse_ibucket;
+                  index_in_sparse_bucket_first_deleted = index_in_sparse_bucket;
+              }
+          } else if (found_first_deleted_bucket) {
+              auto it = insert_in_bucket(sparse_ibucket_first_deleted,
+                                         index_in_sparse_bucket_first_deleted,
+                                         std::forward<Args>(value_type_args)...);
+              m_nb_deleted_buckets--;
 
-        return it;
-      } else {
+              return it;
+          }
+          else {
+              return insert_in_bucket(sparse_ibucket, index_in_sparse_bucket,
+                                      std::forward<Args>(value_type_args)...);
+          }
+      }else {
         return insert_in_bucket(sparse_ibucket, index_in_sparse_bucket,
                                 std::forward<Args>(value_type_args)...);
       }
@@ -1990,6 +1991,7 @@ class sparse_hash : private Allocator,
       std::size_t sparse_ibucket,
       typename sparse_array::size_type index_in_sparse_bucket,
       Args &&... value_type_args) {
+      // is not called when empty
     auto value_it = m_sparse_buckets[sparse_ibucket].set(
         *this, index_in_sparse_bucket, std::forward<Args>(value_type_args)...);
     m_nb_elements++;
@@ -2004,6 +2006,9 @@ class sparse_hash : private Allocator,
     std::size_t ibucket = bucket_for_hash(hash);
 
     std::size_t probe = 0;
+
+    if (m_sparse_buckets == static_empty_sparse_bucket_ptr())
+      return 0;
     while (true) {
       const std::size_t sparse_ibucket = sparse_array::sparse_ibucket(ibucket);
       const auto index_in_sparse_bucket =
@@ -2047,7 +2052,9 @@ class sparse_hash : private Allocator,
       const auto index_in_sparse_bucket =
           sparse_array::index_in_sparse_bucket(ibucket);
 
-      if (m_sparse_buckets[sparse_ibucket].has_value(index_in_sparse_bucket)) {
+      if (m_sparse_buckets == static_empty_sparse_bucket_ptr()) {
+          return cend();
+      }if (m_sparse_buckets[sparse_ibucket].has_value(index_in_sparse_bucket)) {
         auto value_it =
             m_sparse_buckets[sparse_ibucket].value(index_in_sparse_bucket);
         if (compare_keys(key, KeySelect()(*value_it))) {
@@ -2115,7 +2122,7 @@ class sparse_hash : private Allocator,
   }
 
   template <typename K>
-  void insert_on_rehash(K &&key_value) {
+  void  insert_on_rehash(K &&key_value) {
     const key_type &key = KeySelect()(key_value);
 
     const std::size_t hash = hash_key(key);
@@ -2257,17 +2264,17 @@ class sparse_hash : private Allocator,
    */
   static const slz_size_type SERIALIZATION_PROTOCOL_VERSION = 1;
 
+  using sparse_array_ptr = typename std::allocator_traits<allocator_type>::template rebind_traits<sparse_array>::pointer;
   /**
-   * Return an always valid pointer to an static empty bucket_entry with
-   * last_bucket() == true.
+   * Return an nullptr to indicate an empty bucket
    */
-  sparse_array *static_empty_sparse_bucket_ptr() {
-    static sparse_array empty_sparse_bucket(true);
-    return &empty_sparse_bucket;
+  static sparse_array_ptr static_empty_sparse_bucket_ptr() {
+    return {};
   }
 
  private:
   sparse_buckets_container m_sparse_buckets_data;
+
 
   /**
    * Points to m_sparse_buckets_data.data() if !m_sparse_buckets_data.empty()
@@ -2278,7 +2285,8 @@ class sparse_hash : private Allocator,
    * TODO Remove m_sparse_buckets_data and only use a pointer instead of a
    * pointer+vector to save some space in the sparse_hash object.
    */
-  sparse_array *m_sparse_buckets;
+
+  sparse_array_ptr m_sparse_buckets;
 
   size_type m_bucket_count;
   size_type m_nb_elements;
