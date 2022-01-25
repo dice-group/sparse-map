@@ -535,7 +535,21 @@ class sparse_array {
   }
 
   sparse_array &operator=(const sparse_array &) = delete;
-  sparse_array &operator=(sparse_array &&) = delete;
+  sparse_array &operator=(sparse_array &&other) noexcept{
+    this->m_values = other.m_values;
+    this->m_bitmap_vals = other.m_bitmap_vals;
+    this->m_bitmap_deleted_vals = other.m_bitmap_deleted_vals;
+    this->m_nb_elements = other.m_nb_elements;
+    this->m_capacity = other.m_capacity;
+    other.m_values = nullptr;
+    other.m_bitmap_vals = 0;
+    other.m_bitmap_deleted_vals = 0;
+    other.m_nb_elements = 0;
+    other.m_capacity = 0;
+    return *this;
+  }
+
+
 
   ~sparse_array() noexcept {
     // The code that manages the sparse_array must have called clear before
@@ -1090,9 +1104,14 @@ class sparse_hash : private Allocator,
 
   using sparse_buckets_allocator = typename std::allocator_traits<
       allocator_type>::template rebind_alloc<sparse_array>;
+#ifdef BOOST_CONTAINER_CONTAINER_VECTOR_HPP
+  using sparse_buckets_container =
+      boost::container::vector<sparse_array, sparse_buckets_allocator>;
+#else
+  static_assert(std::is_same<sparse_buckets_allocator, std::allocator<sparse_array>>::value, "std::vector works only with std::allocator");
   using sparse_buckets_container =
       std::vector<sparse_array, sparse_buckets_allocator>;
-
+#endif
  public:
   /**
    * The `operator*()` and `operator->()` methods return a const reference and
@@ -1127,10 +1146,10 @@ class sparse_hash : private Allocator,
 
    public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = const sparse_hash::value_type;
+    using value_type = const typename sparse_hash::value_type;
     using difference_type = std::ptrdiff_t;
     using reference = value_type &;
-    using pointer = sparse_hash::const_pointer;
+    using pointer = typename sparse_hash::const_pointer;
 
     sparse_iterator() noexcept {}
 
