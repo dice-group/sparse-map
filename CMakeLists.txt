@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.1)
 project(tsl-sparse-map VERSION 0.6.2 LANGUAGES CXX)
 include(GNUInstallDirs)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 add_library(sparse_map INTERFACE)
 # Use tsl::sparse_map as target, more consistent with other libraries conventions (Boost, Qt, ...)
 add_library(tsl::sparse_map ALIAS sparse_map)

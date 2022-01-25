@@ -5,18 +5,18 @@
     <!-- Visualization that shows the index in the name column and the key-value pair in the value column -->
     <Type Name="tsl::sparse_map&lt;*&gt;" Priority="Medium">
         <AlternativeType Name="tsl::sparse_set&lt;*&gt;"/>
-        <DisplayString>{{ size={m_ht.m_nb_elements} }}</DisplayString>
+        <DisplayString>{{ size={m_ht.size_} }}</DisplayString>
         <Expand>
             <Item Name="[bucket_count]" IncludeView="detailed">m_ht.m_bucket_count</Item>
-            <Item Name="[load_factor]" Condition="m_ht.m_bucket_count != 0" IncludeView="detailed">((float)m_ht.m_nb_elements) / ((float)m_ht.m_bucket_count)</Item>
+            <Item Name="[load_factor]" Condition="m_ht.m_bucket_count != 0" IncludeView="detailed">((float)m_ht.size_) / ((float)m_ht.m_bucket_count)</Item>
             <Item Name="[load_factor]" Condition="m_ht.m_bucket_count == 0" IncludeView="detailed">0</Item>
             <Item Name="[max_load_factor]" IncludeView="detailed">m_ht.m_max_load_factor</Item>
             <CustomListItems>
                 <Variable Name="bucket" InitialValue="m_ht.m_sparse_buckets"/>
-                <Variable Name="element" InitialValue="bucket-&gt;m_values"/>
-                <Variable Name="num_elements" InitialValue="bucket-&gt;m_nb_elements"/>
+                <Variable Name="element" InitialValue="bucket-&gt;values_ptr_"/>
+                <Variable Name="num_elements" InitialValue="bucket-&gt;size_"/>
 
-                <Size>m_ht.m_nb_elements</Size>
+                <Size>m_ht.size_</Size>
                 <Loop>
                     <Loop>
                         <Break Condition="num_elements == 0"/>
@@ -24,10 +24,10 @@
                         <Exec>++element</Exec>
                         <Exec>--num_elements</Exec>
                     </Loop>
-                    <Break Condition="bucket-&gt;m_last_array"/>
+                    <Break Condition="bucket-&gt;is_last_array_"/>
                     <Exec>++bucket</Exec>
-                    <Exec>element = bucket-&gt;m_values</Exec>
-                    <Exec>num_elements = bucket-&gt;m_nb_elements</Exec>
+                    <Exec>element = bucket-&gt;values_ptr_</Exec>
+                    <Exec>num_elements = bucket-&gt;size_</Exec>
                 </Loop>
             </CustomListItems>
         </Expand>
@@ -35,18 +35,18 @@
 
     <!-- Visualization that shows the key in the name column and the key-value pair in the value column -->
     <Type Name="tsl::sparse_map&lt;*&gt;" ExcludeView="ShowElementsByIndex" Priority="MediumHigh">
-        <DisplayString>{{ size={m_ht.m_nb_elements} }}</DisplayString>
+        <DisplayString>{{ size={m_ht.size_} }}</DisplayString>
         <Expand>
             <Item Name="[bucket_count]" IncludeView="detailed">m_ht.m_bucket_count</Item>
-            <Item Name="[load_factor]" Condition="m_ht.m_bucket_count != 0" IncludeView="detailed">((float)m_ht.m_nb_elements) / ((float)m_ht.m_bucket_count)</Item>
+            <Item Name="[load_factor]" Condition="m_ht.m_bucket_count != 0" IncludeView="detailed">((float)m_ht.size_) / ((float)m_ht.m_bucket_count)</Item>
             <Item Name="[load_factor]" Condition="m_ht.m_bucket_count == 0" IncludeView="detailed">0</Item>
             <Item Name="[max_load_factor]" IncludeView="detailed">m_ht.m_max_load_factor</Item>
             <CustomListItems>
                 <Variable Name="bucket" InitialValue="m_ht.m_sparse_buckets"/>
-                <Variable Name="element" InitialValue="bucket-&gt;m_values"/>
-                <Variable Name="num_elements" InitialValue="bucket-&gt;m_nb_elements"/>
+                <Variable Name="element" InitialValue="bucket-&gt;values_ptr_"/>
+                <Variable Name="num_elements" InitialValue="bucket-&gt;size_"/>
 
-                <Size>m_ht.m_nb_elements</Size>
+                <Size>m_ht.size_</Size>
                 <Loop>
                     <Loop>
                         <Break Condition="num_elements == 0"/>
@@ -54,10 +54,10 @@
                         <Exec>++element</Exec>
                         <Exec>--num_elements</Exec>
                     </Loop>
-                    <Break Condition="bucket-&gt;m_last_array"/>
+                    <Break Condition="bucket-&gt;is_last_array_"/>
                     <Exec>++bucket</Exec>
-                    <Exec>element = bucket-&gt;m_values</Exec>
-                    <Exec>num_elements = bucket-&gt;m_nb_elements</Exec>
+                    <Exec>element = bucket-&gt;values_ptr_</Exec>
+                    <Exec>num_elements = bucket-&gt;size_</Exec>
                 </Loop>
             </CustomListItems>
         </Expand>
