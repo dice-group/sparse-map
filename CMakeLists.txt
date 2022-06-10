@@ -6,7 +6,7 @@ project(dice-sparse-map
 include(cmake/boilerplate_init.cmake)
 boilerplate_init()
 
-find_package(Boost REQUIRED COMPONENTS headers)
+find_package(Boost REQUIRED)
 
 add_library(dice-sparse-map INTERFACE)
 # Use Dice::sparse_map as target, more consistent with other libraries conventions (Boost, Qt, ...)
