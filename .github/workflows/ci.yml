@@ -86,7 +86,7 @@ jobs:
 
     # Windows
     - name: Install boost (Windows)
-      run: vcpkg install boost-test:${{matrix.config.vcpkg-triplet}}
+      run: vcpkg install boost-test:${{matrix.config.vcpkg-triplet}} boost-container:${{matrix.config.vcpkg-triplet}}
       if: runner.os == 'Windows'
 
     - name: Configure CMake (Windows)
@@ -103,7 +103,7 @@ jobs:
 
     # Linux or macOS
     - name: Install boost (Linux or macOS)
-      run: vcpkg install boost-test
+      run: vcpkg install boost-test boost-container
       if: runner.os == 'Linux' || runner.os == 'macOS'
 
     - name: Configure CMake (Linux or macOS)
