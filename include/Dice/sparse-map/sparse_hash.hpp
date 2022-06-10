@@ -39,7 +39,7 @@
 #include <utility>
 #include <vector>
 
-#include "sparse_growth_policy.h"
+#include "sparse_growth_policy.hpp"
 
 #ifdef __INTEL_COMPILER
 #include <immintrin.h>  // For _popcnt32 and _popcnt64

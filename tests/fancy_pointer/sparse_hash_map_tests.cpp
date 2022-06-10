@@ -4,8 +4,8 @@
 
 #include <unordered_map>
 #include <boost/test/unit_test.hpp>
-#include <Dice/sparse-map/sparse_map.h>
-#include <Dice/sparse-map/sparse_hash.h>
+#include <Dice/sparse-map/sparse_map.hpp>
+#include <Dice/sparse-map/sparse_hash.hpp>
 #include "CustomAllocator.h"
 
 /* Tests are analogous to the  tests in sparse_array_tests.cpp.

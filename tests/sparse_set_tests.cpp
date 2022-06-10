@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <Dice/sparse-map/sparse_set.h>
+#include <Dice/sparse-map/sparse_set.hpp>
 
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>

@@ -126,8 +126,8 @@ All methods are not documented yet, but they replicate the behaviour of the ones
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <Dice/sparse-map/sparse_map.h>
-#include <Dice/sparse-map/sparse_set.h>
+#include <Dice/sparse-map/sparse_map.hpp>
+#include <Dice/sparse-map/sparse_set.hpp>
 
 int main() {
     Dice::sparse_map::sparse_map<std::string, int> map = {{"a", 1}, {"b", 2}};
@@ -184,7 +184,7 @@ Both `KeyEqual` and `Hash` will need to be able to deal with the different types
 #include <functional>
 #include <iostream>
 #include <string>
-#include <Dice/sparse-map/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.hpp>
 
 
 struct employee {
@@ -295,7 +295,7 @@ More details regarding the `serialize` and `deserialize` methods can be found in
 #include <cstdint>
 #include <fstream>
 #include <type_traits>
-#include <Dice/sparse-map/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.hpp>
 
 
 class serializer {
@@ -402,7 +402,7 @@ The following example uses Boost Serialization with the Boost zlib compression s
 #include <cassert>
 #include <cstdint>
 #include <fstream>
-#include <Dice/sparse-map/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.hpp>
 
 
 namespace boost { namespace serialization {

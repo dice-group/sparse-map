@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <Dice/sparse-map/sparse_hash.h>
+#include <Dice/sparse-map/sparse_hash.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <cstdint>

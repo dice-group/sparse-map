@@ -1,7 +1,7 @@
-#ifndef TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H
-#define TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H
+#ifndef TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_HPP
+#define TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_HPP
 
-#include "Dice/sparse-map/sparse_hash.h" //needed, so the basic template is already included
+#include "Dice/sparse-map/sparse_hash.hpp" //needed, so the basic template is already included
 #include <boost/interprocess/offset_ptr.hpp>
 
 namespace Dice::sparse_map {
@@ -21,4 +21,4 @@ struct Remove_Const<boost::interprocess::offset_ptr<PT, DT, OT, OA>> {
 };
 } // namespace Dice
 
-#endif // TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H
+#endif // TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_HPP

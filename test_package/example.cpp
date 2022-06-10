@@ -1,4 +1,4 @@
-#include <Dice/sparse-map/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.hpp>
 
 #include <iostream>
 
