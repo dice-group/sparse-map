@@ -78,7 +78,7 @@ jobs:
 
     # Linux or macOS
     - name: Install boost (Linux or macOS)
-      run: vcpkg install boost-test boost-container
+      run: vcpkg install boost-test boost-container boost-interprocess
       if: runner.os == 'Linux' || runner.os == 'macOS'
 
     - name: Configure CMake (Linux or macOS)
