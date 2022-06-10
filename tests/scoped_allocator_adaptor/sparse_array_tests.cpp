@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <scoped_allocator>
-#include <tsl/sparse_set.h>
+#include <Dice/sparse-map/sparse_set.hpp>
 #include <type_traits>
 #include <unordered_set>
 

@@ -6,7 +6,7 @@
 #include <boost/test/unit_test.hpp>
 #include <Dice/sparse-map/sparse_map.hpp>
 #include <Dice/sparse-map/sparse_hash.hpp>
-#include "CustomAllocator.h"
+#include "CustomAllocator.hpp"
 
 /* Tests are analogous to the  tests in sparse_array_tests.cpp.
  * The template parameter now also holds the value_type.

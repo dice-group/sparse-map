@@ -21,8 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef TSL_SPARSE_HASH_H
-#define TSL_SPARSE_HASH_H
+#ifndef DICE_SPARSE_MAP_SPARSE_HASH_HPP
+#define DICE_SPARSE_MAP_SPARSE_HASH_HPP
 
 #include <algorithm>
 #include <cassert>
@@ -39,7 +39,8 @@
 #include <utility>
 #include <vector>
 
-#include "sparse_growth_policy.hpp"
+#include "Dice/sparse-map/sparse_growth_policy.hpp"
+#include "boost/container/vector.hpp"
 
 #ifdef __INTEL_COMPILER
 #include <immintrin.h>  // For _popcnt32 and _popcnt64
@@ -1103,14 +1104,8 @@ class sparse_hash : private Allocator,
 
   using sparse_buckets_allocator = typename std::allocator_traits<
       allocator_type>::template rebind_alloc<sparse_array>;
-#ifdef BOOST_CONTAINER_CONTAINER_VECTOR_HPP
   using sparse_buckets_container =
       boost::container::vector<sparse_array, sparse_buckets_allocator>;
-#else
-  static_assert(std::is_same<sparse_buckets_allocator, std::allocator<sparse_array>>::value, "std::vector works only with std::allocator");
-  using sparse_buckets_container =
-      std::vector<sparse_array, sparse_buckets_allocator>;
-#endif
  public:
   /**
    * The `operator*()` and `operator->()` methods return a const reference and
@@ -1240,6 +1235,7 @@ class sparse_hash : private Allocator,
         KeyEqual(equal),
         GrowthPolicy(bucket_count),
         m_sparse_buckets_data(alloc),
+        //         m_sparse_buckets_data(std::allocator_traits<Allocator>::rebind_alloc<sparse_buckets_container::Allocator>(alloc)),
         m_sparse_buckets(static_empty_sparse_bucket_ptr()),
         m_bucket_count(bucket_count),
         m_nb_elements(0),

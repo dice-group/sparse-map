@@ -2,8 +2,8 @@
  * @bief Home of a custom allocator for testing with fancy pointers.
  */
 
-#ifndef TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_H
-#define TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_H
+#ifndef TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_HPP
+#define TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_HPP
 
 #include <boost/interprocess/offset_ptr.hpp>
 
@@ -43,4 +43,4 @@ struct OffsetAllocator {
     }
 };
 
-#endif //TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_H
+#endif //TSL_SPARSE_MAP_TESTS_CUSTOMALLOCATOR_HPP

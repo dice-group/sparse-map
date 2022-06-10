@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <tsl/sparse_hash.h>
+#include <Dice/sparse-map/sparse_set.hpp>
 #include <scoped_allocator>
 
 namespace details {

@@ -23,7 +23,6 @@
  */
 #define BOOST_TEST_DYN_LINK
 
-#include <boost/container/vector.hpp>
 #include <Dice/sparse-map/sparse_map.hpp>
 
 #include <boost/test/unit_test.hpp>

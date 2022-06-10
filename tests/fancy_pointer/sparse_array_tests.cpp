@@ -4,7 +4,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <Dice/sparse-map/sparse_hash.hpp>
-#include "CustomAllocator.h"
+#include "CustomAllocator.hpp"
 
 // Globals
 constexpr auto MAX_INDEX = 32; //BITMAP_NB_BITS

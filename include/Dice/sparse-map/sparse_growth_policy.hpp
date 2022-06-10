@@ -21,8 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef TSL_SPARSE_GROWTH_POLICY_H
-#define TSL_SPARSE_GROWTH_POLICY_H
+#ifndef DICE_SPARSE_MAP_SPARSE_GROWTH_POLICY_HPP
+#define DICE_SPARSE_MAP_SPARSE_GROWTH_POLICY_HPP
 
 #include <algorithm>
 #include <array>
@@ -34,8 +34,7 @@
 #include <ratio>
 #include <stdexcept>
 
-namespace Dice::sparse_map {
-namespace sh {
+namespace Dice::sparse_map::sh {
 
 /**
  * Grow the hash table by a factor of GrowthFactor keeping the bucket count to a
@@ -295,7 +294,6 @@ class prime_growth_policy {
   unsigned int m_iprime;
 };
 
-}  // namespace sh
 }  // namespace Dice
 
 #endif
