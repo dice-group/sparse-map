@@ -9,12 +9,6 @@ jobs:
       matrix:
         config:
         - {
-            name: linux-x64-gcc-7,
-            os: ubuntu-18.04,
-            cxx: g++-7,
-            cmake-build-type: Release
-          }
-        - {
             name: linux-x64-clang-9,
             os: ubuntu-18.04,
             cxx: clang++-9,
@@ -48,58 +42,39 @@ jobs:
             cmake-build-type: Debug
           }
         - {
-            name: windows-x64-vs-2019,
-            os: windows-2019,
-            cmake-build-type: Release,
-            cmake-generator: Visual Studio 16 2019,
-            cmake-platform: x64,
-            vcpkg-triplet: x64-windows-static-md
-          }
+          name: linux-x64-clang-11,
+          os: ubuntu-20.04,
+          cxx: clang++-11,
+          cmake-build-type: Release
+        }
         - {
-            name: windows-x86-vs-2019,
-            os: windows-2019,
-            cmake-build-type: Release,
-            cmake-generator: Visual Studio 16 2019,
-            cmake-platform: Win32,
-            vcpkg-triplet: x86-windows-static-md
-          }
+          name: linux-x64-clang-12,
+          os: ubuntu-22.04,
+          cxx: clang++-12,
+          cmake-build-type: Release
+        }
         - {
-            name: windows-x64-vs-2022,
-            os: windows-2022,
-            cmake-build-type: Release,
-            cmake-generator: Visual Studio 17 2022,
-            cmake-platform: x64,
-            vcpkg-triplet: x64-windows-static-md
-          }
+          name: linux-x64-clang-13,
+          os: ubuntu-22.04,
+          cxx: clang++-13,
+          cmake-build-type: Release
+        }
         - {
-            name: windows-x86-vs-2022,
-            os: windows-2022,
-            cmake-build-type: Release,
-            cmake-generator: Visual Studio 17 2022,
-            cmake-platform: Win32,
-            vcpkg-triplet: x86-windows-static-md
-          }
+          name: linux-x64-clang-14,
+          os: ubuntu-22.04,
+          cxx: clang++-14,
+          cmake-build-type: Release
+        }
+        - {
+          name: linux-x64-gcc-11,
+          os: ubuntu-22.04,
+          cxx: g++-11,
+          cmake-build-type: Release
+        }
     name: ${{matrix.config.name}}
     runs-on: ${{matrix.config.os}}
     steps:
     - uses: actions/checkout@v2
-
-    # Windows
-    - name: Install boost (Windows)
-      run: vcpkg install boost-test:${{matrix.config.vcpkg-triplet}} boost-container:${{matrix.config.vcpkg-triplet}}
-      if: runner.os == 'Windows'
-
-    - name: Configure CMake (Windows)
-      run: cmake -G "${{matrix.config.cmake-generator}}" -A ${{matrix.config.cmake-platform}} -DCMAKE_BUILD_TYPE=${{matrix.config.cmake-build-type}} -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=${{matrix.config.vcpkg-triplet}} -S ${{github.workspace}}/tests -B ${{github.workspace}}/build
-      if: runner.os == 'Windows'
-
-    - name: Build (Windows)
-      run: cmake --build ${{github.workspace}}/build --config ${{matrix.config.cmake-build-type}} --verbose
-      if: runner.os == 'Windows'
-
-    - name: Test (Windows)
-      run: ${{github.workspace}}/build/${{matrix.config.cmake-build-type}}/tsl_sparse_map_tests.exe
-      if: runner.os == 'Windows'
 
     # Linux or macOS
     - name: Install boost (Linux or macOS)
