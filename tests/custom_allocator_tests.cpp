@@ -24,7 +24,7 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/container/vector.hpp>
-#include <tsl/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.h>
 
 #include <boost/test/unit_test.hpp>
 #include <cstddef>
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(test_custom_allocator_1) {
   //    nb_global_new = 0;
   nb_custom_allocs = 0;
 
-  tsl::sparse_map<int, int, std::hash<int>, std::equal_to<int>,
+  Dice::sparse_map::sparse_map<int, int, std::hash<int>, std::equal_to<int>,
                   custom_allocator<std::pair<int, int>>>
       map;
 

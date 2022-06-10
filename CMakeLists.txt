@@ -9,7 +9,8 @@ boilerplate_init()
 find_package(Boost REQUIRED COMPONENTS headers)
 
 add_library(dice-sparse-map INTERFACE)
-# Use tsl::sparse_map as target, more consistent with other libraries conventions (Boost, Qt, ...)
+# Use Dice::sparse_map as target, more consistent with other libraries conventions (Boost, Qt, ...)
+add_library(dice-sparse-map::dice-sparse-map ALIAS dice-sparse-map)
 add_library(Dice::sparse-map ALIAS dice-sparse-map)
 
 target_include_directories(
@@ -18,6 +19,11 @@ target_include_directories(
 target_link_libraries(dice-sparse-map INTERFACE
         Boost::headers
         )
+
+set_target_properties(dice-sparse-map PROPERTIES
+        CXX_STANDARD 20
+        CXX_EXTENSIONS OFF
+        CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
     target_sources(sparse_map INTERFACE

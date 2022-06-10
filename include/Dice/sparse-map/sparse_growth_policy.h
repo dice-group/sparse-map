@@ -34,7 +34,7 @@
 #include <ratio>
 #include <stdexcept>
 
-namespace tsl {
+namespace Dice::sparse_map {
 namespace sh {
 
 /**
@@ -193,7 +193,7 @@ class mod_growth_policy {
 
 /**
  * Grow the hash table by using prime numbers as bucket count. Slower than
- * tsl::sh::power_of_two_growth_policy in general but will probably distribute
+ * Dice::sh::power_of_two_growth_policy in general but will probably distribute
  * the values around better in the buckets with a poor hash function.
  *
  * To allow the compiler to optimize the modulo operation, a lookup table is
@@ -296,6 +296,6 @@ class prime_growth_policy {
 };
 
 }  // namespace sh
-}  // namespace tsl
+}  // namespace Dice
 
 #endif

@@ -10,12 +10,12 @@ template <typename Key> struct KeySelect {
 };
 
 template <typename T, typename Alloc>
-using sparse_set = tsl::detail_sparse_hash::sparse_hash<
+using sparse_set = Dice::sparse_map::detail_sparse_hash::sparse_hash<
     T, details::KeySelect<T>, void, std::hash<T>, std::equal_to<T>, Alloc,
-    tsl::sh::power_of_two_growth_policy<2>,
-    tsl::sh::exception_safety::basic,
-    tsl::sh::sparsity::medium,
-    tsl::sh::probing::quadratic>;
+    Dice::sparse_map::sh::power_of_two_growth_policy<2>,
+    Dice::sparse_map::sh::exception_safety::basic,
+    Dice::sparse_map::sh::sparsity::medium,
+    Dice::sparse_map::sh::probing::quadratic>;
 } // namespace details
 
 template <typename T> void construction() {

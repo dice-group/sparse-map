@@ -4,8 +4,8 @@
 
 #include <unordered_map>
 #include <boost/test/unit_test.hpp>
-#include <tsl/sparse_map.h>
-#include <tsl/sparse_hash.h>
+#include <Dice/sparse-map/sparse_map.h>
+#include <Dice/sparse-map/sparse_hash.h>
 #include "CustomAllocator.h"
 
 /* Tests are analogous to the  tests in sparse_array_tests.cpp.
@@ -35,12 +35,12 @@ namespace details {
     };
 
     template<typename Key, typename T, typename Alloc>
-    using sparse_map= tsl::detail_sparse_hash::sparse_hash<
+    using sparse_map= Dice::sparse_map::detail_sparse_hash::sparse_hash<
             std::pair<Key, T>, KeySelect<Key, T>, ValueSelect<Key,T>, std::hash<T>, std::equal_to<T>, Alloc,
-            tsl::sh::power_of_two_growth_policy<2>,
-            tsl::sh::exception_safety::basic,
-            tsl::sh::sparsity::medium,
-            tsl::sh::probing::quadratic>;
+            Dice::sparse_map::sh::power_of_two_growth_policy<2>,
+            Dice::sparse_map::sh::exception_safety::basic,
+            Dice::sparse_map::sh::sparsity::medium,
+            Dice::sparse_map::sh::probing::quadratic>;
 
     template<typename T>
     typename T::Map default_construct_map() {
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(custom_alloc_iterator_access_multi) {iterator_access_multi<
 BOOST_AUTO_TEST_CASE(custom_alloc_value) {value<CUSTOM<int, int>>({{1,2},{3,4},{5,6}}, {1, 42});}
 
 BOOST_AUTO_TEST_CASE(full_map) {
-    tsl::sparse_map<int, int, std::hash<int>, std::equal_to<int>, OffsetAllocator<std::pair<int,int>>> map;
+    Dice::sparse_map::sparse_map<int, int, std::hash<int>, std::equal_to<int>, OffsetAllocator<std::pair<int,int>>> map;
     std::vector<std::pair<int,int>> data = {
             {0,1},{2,3},{4,5},{6,7},{8,9}
     };

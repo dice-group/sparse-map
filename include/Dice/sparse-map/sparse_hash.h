@@ -55,7 +55,7 @@
 #define tsl_sh_assert(expr) (static_cast<void>(0))
 #endif
 
-namespace tsl {
+namespace Dice::sparse_map {
 
 namespace sh {
 enum class probing { linear, quadratic };
@@ -179,7 +179,7 @@ inline int popcount(unsigned int x) { return fallback_popcount(x); }
 
 /* Replacement for const_cast in sparse_array.
  * Can be overloaded for specific fancy pointers
- * (see: include/tsl/boost_offset_pointer.h).
+ * (see: include/Dice/boost_offset_pointer.h).
  * This is just a workaround.
  * The clean way would be to change the implementation to stop using const_cast.
  */
@@ -246,7 +246,7 @@ template <typename U>
 struct is_power_of_two_policy : std::false_type {};
 
 template <std::size_t GrowthFactor>
-struct is_power_of_two_policy<tsl::sh::power_of_two_growth_policy<GrowthFactor>>
+struct is_power_of_two_policy<Dice::sparse_map::sh::power_of_two_growth_policy<GrowthFactor>>
     : std::true_type {};
 
 inline constexpr bool is_power_of_two(std::size_t value) {
@@ -338,7 +338,7 @@ static T deserialize_value(Deserializer &deserializer) {
  *
  * TODO Check to use std::realloc and std::memmove when possible
  */
-template <typename T, typename Allocator, tsl::sh::sparsity Sparsity>
+template <typename T, typename Allocator, Dice::sparse_map::sh::sparsity Sparsity>
 class sparse_array {
  public:
   using value_type = T;
@@ -352,10 +352,10 @@ class sparse_array {
 
  private:
   static const size_type CAPACITY_GROWTH_STEP =
-      (Sparsity == tsl::sh::sparsity::high) ? 2
-      : (Sparsity == tsl::sh::sparsity::medium)
+      (Sparsity == Dice::sparse_map::sh::sparsity::high) ? 2
+      : (Sparsity == Dice::sparse_map::sh::sparsity::medium)
           ? 4
-          : 8;  // (Sparsity == tsl::sh::sparsity::low)
+          : 8;  // (Sparsity == Dice::sh::sparsity::low)
 
   /**
    * Bitmap size configuration.
@@ -423,7 +423,7 @@ class sparse_array {
     }
 
     return std::max<std::size_t>(
-        1, sparse_ibucket(tsl::detail_sparse_hash::round_up_to_power_of_two(
+        1, sparse_ibucket(Dice::sparse_map::detail_sparse_hash::round_up_to_power_of_two(
                bucket_count)));
   }
 
@@ -661,7 +661,7 @@ class sparse_array {
   }
 
   static iterator mutable_iterator(const_iterator pos) {
-    return ::tsl::Remove_Const<iterator>::template remove<const_iterator>(pos);
+    return ::Dice::sparse_map::Remove_Const<iterator>::template remove<const_iterator>(pos);
   }
 
   template <class Serializer>
@@ -772,9 +772,9 @@ class sparse_array {
   static size_type popcount(bitmap_type val) noexcept {
     if (sizeof(bitmap_type) <= sizeof(unsigned int)) {
       return static_cast<size_type>(
-          tsl::detail_popcount::popcount(static_cast<unsigned int>(val)));
+          Dice::sparse_map::detail_popcount::popcount(static_cast<unsigned int>(val)));
     } else {
-      return static_cast<size_type>(tsl::detail_popcount::popcountll(val));
+      return static_cast<size_type>(Dice::sparse_map::detail_popcount::popcountll(val));
     }
   }
 
@@ -1044,7 +1044,7 @@ class sparse_array {
  * if there is no value (in a set for example).
  *
  * The strong exception guarantee only holds if `ExceptionSafety` is set to
- * `tsl::sh::exception_safety::strong`.
+ * `Dice::sh::exception_safety::strong`.
  *
  * `ValueType` must be nothrow move constructible and/or copy constructible.
  * Behaviour is undefined if the destructor of `ValueType` throws.
@@ -1062,8 +1062,8 @@ class sparse_array {
  */
 template <class ValueType, class KeySelect, class ValueSelect, class Hash,
           class KeyEqual, class Allocator, class GrowthPolicy,
-          tsl::sh::exception_safety ExceptionSafety, tsl::sh::sparsity Sparsity,
-          tsl::sh::probing Probing>
+          Dice::sparse_map::sh::exception_safety ExceptionSafety, Dice::sparse_map::sh::sparsity Sparsity,
+          Dice::sparse_map::sh::probing Probing>
 class sparse_hash : private Allocator,
                     private Hash,
                     private KeyEqual,
@@ -1099,7 +1099,7 @@ class sparse_hash : private Allocator,
 
  private:
   using sparse_array =
-      tsl::detail_sparse_hash::sparse_array<ValueType, Allocator, Sparsity>;
+      Dice::sparse_map::detail_sparse_hash::sparse_array<ValueType, Allocator, Sparsity>;
 
   using sparse_buckets_allocator = typename std::allocator_traits<
       allocator_type>::template rebind_alloc<sparse_array>;
@@ -1855,10 +1855,10 @@ class sparse_hash : private Allocator,
                 nullptr>
   size_type next_bucket(size_type ibucket, size_type iprobe) const {
     (void)iprobe;
-    if (Probing == tsl::sh::probing::linear) {
+    if (Probing == Dice::sparse_map::sh::probing::linear) {
       return (ibucket + 1) & this->m_mask;
     } else {
-      tsl_sh_assert(Probing == tsl::sh::probing::quadratic);
+      tsl_sh_assert(Probing == Dice::sparse_map::sh::probing::quadratic);
       return (ibucket + iprobe) & this->m_mask;
     }
   }
@@ -1868,11 +1868,11 @@ class sparse_hash : private Allocator,
                 nullptr>
   size_type next_bucket(size_type ibucket, size_type iprobe) const {
     (void)iprobe;
-    if (Probing == tsl::sh::probing::linear) {
+    if (Probing == Dice::sparse_map::sh::probing::linear) {
       ibucket++;
       return (ibucket != bucket_count()) ? ibucket : 0;
     } else {
-      tsl_sh_assert(Probing == tsl::sh::probing::quadratic);
+      tsl_sh_assert(Probing == Dice::sparse_map::sh::probing::quadratic);
       ibucket += iprobe;
       return (ibucket < bucket_count()) ? ibucket : ibucket % bucket_count();
     }
@@ -2078,8 +2078,8 @@ class sparse_hash : private Allocator,
     tsl_sh_assert(m_nb_deleted_buckets == 0);
   }
 
-  template <tsl::sh::exception_safety U = ExceptionSafety,
-            typename std::enable_if<U == tsl::sh::exception_safety::basic>::type
+  template <Dice::sparse_map::sh::exception_safety U = ExceptionSafety,
+            typename std::enable_if<U == Dice::sparse_map::sh::exception_safety::basic>::type
                 * = nullptr>
   void rehash_impl(size_type count) {
     sparse_hash new_table(count, static_cast<Hash &>(*this),
@@ -2103,9 +2103,9 @@ class sparse_hash : private Allocator,
    * them if they are nothrow_move_constructible without triggering
    * any exception if we reserve enough space in the sparse arrays beforehand.
    */
-  template <tsl::sh::exception_safety U = ExceptionSafety,
+  template <Dice::sparse_map::sh::exception_safety U = ExceptionSafety,
             typename std::enable_if<
-                U == tsl::sh::exception_safety::strong>::type * = nullptr>
+                U == Dice::sparse_map::sh::exception_safety::strong>::type * = nullptr>
   void rehash_impl(size_type count) {
     sparse_hash new_table(count, static_cast<Hash &>(*this),
                           static_cast<KeyEqual &>(*this),
@@ -2306,6 +2306,6 @@ class sparse_hash : private Allocator,
 };
 
 }  // namespace detail_sparse_hash
-}  // namespace tsl
+}  // namespace Dice
 
 #endif

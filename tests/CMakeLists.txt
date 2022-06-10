@@ -22,6 +22,6 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54.0 REQUIRED COMPONENTS unit_test_framework)
 target_link_libraries(tsl_sparse_map_tests PRIVATE Boost::unit_test_framework)
 
-# tsl::sparse_map
+# Dice::sparse_map
 add_subdirectory(../ ${CMAKE_CURRENT_BINARY_DIR}/tsl)
 target_link_libraries(tsl_sparse_map_tests PRIVATE Dice::sparse-map)

@@ -3,9 +3,9 @@
  */
 
 #include <boost/test/unit_test.hpp>
-#include <tsl/sparse_set.h>
-#include <tsl/sparse_hash.h>
-#include <tsl/boost_offset_pointer.h>
+#include <Dice/sparse-map/sparse_set.h>
+#include <Dice/sparse-map/sparse_hash.h>
+#include <Dice/sparse-map/boost_offset_pointer.h>
 #include "CustomAllocator.h"
 
 /* Tests are analogous to the  tests in sparse_array_tests.cpp.
@@ -20,12 +20,12 @@ namespace details {
     };
 
     template<typename T, typename Alloc>
-    using sparse_set = tsl::detail_sparse_hash::sparse_hash<
+    using sparse_set = Dice::sparse_map::detail_sparse_hash::sparse_hash<
             T, KeySelect<T>, void, std::hash<T>, std::equal_to<T>, Alloc,
-            tsl::sh::power_of_two_growth_policy<2>,
-            tsl::sh::exception_safety::basic,
-            tsl::sh::sparsity::medium,
-            tsl::sh::probing::quadratic>;
+            Dice::sparse_map::sh::power_of_two_growth_policy<2>,
+            Dice::sparse_map::sh::exception_safety::basic,
+            Dice::sparse_map::sh::sparsity::medium,
+            Dice::sparse_map::sh::probing::quadratic>;
 
     template<typename T>
     typename T::Set default_construct_set() {
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(custom_erase) {erase<CUSTOM<int>>({1,2,3,4}, 5);}
 BOOST_AUTO_TEST_CASE(custom_erase_with_const_iter) {erase_with_const_iter<CUSTOM<int>>({1,2,3,4}, 5);}
 
 BOOST_AUTO_TEST_CASE(full_set) {
-    tsl::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;
+    Dice::sparse_map::sparse_set<int, std::hash<int>, std::equal_to<int>, OffsetAllocator<int>> set;
     std::vector<int> data = {1,2,3,4,5,6,7,8,9};
     set.insert(data.begin(), data.end());
     auto check = [&set](int d) {return set.contains(d);};

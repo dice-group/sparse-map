@@ -3,7 +3,7 @@
  */
 
 #include <boost/test/unit_test.hpp>
-#include <tsl/sparse_hash.h>
+#include <Dice/sparse-map/sparse_hash.h>
 #include "CustomAllocator.h"
 
 // Globals
@@ -95,17 +95,17 @@ void const_iterator() {
 /*
  * This are the types you can give the tests as template parameters.
  */
-template <typename T, tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
+template <typename T, Dice::sparse_map::sh::sparsity Sparsity = Dice::sparse_map::sh::sparsity::medium>
 struct STD {
     using Allocator = std::allocator<T>;
-    using Array = tsl::detail_sparse_hash::sparse_array<T, std::allocator<T>, Sparsity>;
+    using Array = Dice::sparse_map::detail_sparse_hash::sparse_array<T, std::allocator<T>, Sparsity>;
     using Const_Iterator = T const*;
 };
 
-template<typename T, tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
+template<typename T, Dice::sparse_map::sh::sparsity Sparsity = Dice::sparse_map::sh::sparsity::medium>
 struct CUSTOM {
     using Allocator = OffsetAllocator<T>;
-    using Array = tsl::detail_sparse_hash::sparse_array<T, OffsetAllocator<T>, Sparsity>;
+    using Array = Dice::sparse_map::detail_sparse_hash::sparse_array<T, OffsetAllocator<T>, Sparsity>;
     using Const_Iterator = boost::interprocess::offset_ptr<const T>;
 };
 

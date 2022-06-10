@@ -1,10 +1,10 @@
 #ifndef TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H
 #define TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H
 
-#include "sparse_hash.h" //needed, so the basic template is already included
+#include "Dice/sparse-map/sparse_hash.h" //needed, so the basic template is already included
 #include <boost/interprocess/offset_ptr.hpp>
 
-namespace tsl {
+namespace Dice::sparse_map {
 /* Template specialisation for a "const_cast" of a boost offset_ptr.
  * @tparam PT PointedType
  * @tparam DT DifferenceType
@@ -19,6 +19,6 @@ struct Remove_Const<boost::interprocess::offset_ptr<PT, DT, OT, OA>> {
     return boost::interprocess::const_pointer_cast<PT, DT, OT, OA>(const_iter);
   }
 };
-} // namespace tsl
+} // namespace Dice
 
 #endif // TSL_SPARSE_MAP_TESTS_BOOST_OFFSET_POINTER_H

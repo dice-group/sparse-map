@@ -31,9 +31,10 @@
 #include <type_traits>
 #include <utility>
 
-#include "sparse_hash.h"
+#include "Dice/sparse-map/sparse_hash.h"
+#include "Dice/sparse-map/boost_offset_pointer.h"
 
-namespace tsl {
+namespace Dice::sparse_map {
 
 /**
  * Implementation of a sparse hash map using open-addressing with quadratic
@@ -42,10 +43,10 @@ namespace tsl {
  *
  * `GrowthPolicy` defines how the map grows and consequently how a hash value is
  * mapped to a bucket. By default the map uses
- * `tsl::sh::power_of_two_growth_policy`. This policy keeps the number of
+ * `Dice::sh::power_of_two_growth_policy`. This policy keeps the number of
  * buckets to a power of two and uses a mask to map the hash to a bucket instead
  * of the slow modulo. Other growth policies are available and you may define
- * your own growth policy, check `tsl::sh::power_of_two_growth_policy` for the
+ * your own growth policy, check `Dice::sh::power_of_two_growth_policy` for the
  * interface.
  *
  * `ExceptionSafety` defines the exception guarantee provided by the class. By
@@ -59,13 +60,13 @@ namespace tsl {
  * can be avoided by calling `reserve` beforehand. This basic guarantee is
  * similar to the one of `google::sparse_hash_map` and `spp::sparse_hash_map`.
  * It is possible to ask for the strong exception guarantee with
- * `tsl::sh::exception_safety::strong`, the drawback is that the map will be
+ * `Dice::sh::exception_safety::strong`, the drawback is that the map will be
  * slower on rehashes and will also need more memory on rehashes.
  *
  * `Sparsity` defines how much the hash set will compromise between insertion
  * speed and memory usage. A high sparsity means less memory usage but longer
  * insertion times, and vice-versa for low sparsity. The default
- * `tsl::sh::sparsity::medium` sparsity offers a good compromise. It doesn't
+ * `Dice::sh::sparsity::medium` sparsity offers a good compromise. It doesn't
  * change the lookup speed.
  *
  * `Key` and `T` must be nothrow move constructible and/or copy constructible.
@@ -82,14 +83,14 @@ namespace tsl {
 template <class Key, class T, class Hash = std::hash<Key>,
           class KeyEqual = std::equal_to<Key>,
           class Allocator = std::allocator<std::pair<Key, T>>,
-          class GrowthPolicy = tsl::sh::power_of_two_growth_policy<2>,
-          tsl::sh::exception_safety ExceptionSafety =
-              tsl::sh::exception_safety::basic,
-          tsl::sh::sparsity Sparsity = tsl::sh::sparsity::medium>
+          class GrowthPolicy = Dice::sparse_map::sh::power_of_two_growth_policy<2>,
+          Dice::sparse_map::sh::exception_safety ExceptionSafety =
+              Dice::sparse_map::sh::exception_safety::basic,
+          Dice::sparse_map::sh::sparsity Sparsity = Dice::sparse_map::sh::sparsity::medium>
 class sparse_map {
  private:
   template <typename U>
-  using has_is_transparent = tsl::detail_sparse_hash::has_is_transparent<U>;
+  using has_is_transparent = Dice::sparse_map::detail_sparse_hash::has_is_transparent<U>;
 
   class KeySelect {
    public:
@@ -121,7 +122,7 @@ class sparse_map {
 
   using ht = detail_sparse_hash::sparse_hash<
       std::pair<Key, T>, KeySelect, ValueSelect, Hash, KeyEqual, Allocator,
-      GrowthPolicy, ExceptionSafety, Sparsity, tsl::sh::probing::quadratic>;
+      GrowthPolicy, ExceptionSafety, Sparsity, Dice::sparse_map::sh::probing::quadratic>;
 
  public:
   using key_type = typename ht::key_type;
@@ -786,15 +787,15 @@ class sparse_map {
 };
 
 /**
- * Same as `tsl::sparse_map<Key, T, Hash, KeyEqual, Allocator,
- * tsl::sh::prime_growth_policy>`.
+ * Same as `Dice::sparse_map<Key, T, Hash, KeyEqual, Allocator,
+ * Dice::sh::prime_growth_policy>`.
  */
 template <class Key, class T, class Hash = std::hash<Key>,
           class KeyEqual = std::equal_to<Key>,
           class Allocator = std::allocator<std::pair<Key, T>>>
 using sparse_pg_map =
-    sparse_map<Key, T, Hash, KeyEqual, Allocator, tsl::sh::prime_growth_policy>;
+    sparse_map<Key, T, Hash, KeyEqual, Allocator, Dice::sparse_map::sh::prime_growth_policy>;
 
-}  // end namespace tsl
+}  // end namespace Dice
 
 #endif

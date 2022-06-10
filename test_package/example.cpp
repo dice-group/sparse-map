@@ -1,8 +1,8 @@
-#include <tsl/sparse_map.h>
+#include <Dice/sparse-map/sparse_map.h>
 
 #include <iostream>
 
 int main() {
-    tsl::sparse_map<int, int> x;
+    Dice::sparse_map::sparse_map<int, int> x;
     x[1] = 1;
 }
