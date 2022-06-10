@@ -21,6 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/container/vector.hpp>
 #include <tsl/sparse_map.h>
 
 #include <boost/test/unit_test.hpp>
