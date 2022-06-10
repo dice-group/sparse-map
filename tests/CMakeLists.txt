@@ -17,11 +17,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(tsl_sparse_map_tests PRIVATE /bigobj /WX /W3 /DTSL_DEBUG /UNDEBUG)
 endif()
 
-# Boost::unit_test_framework and Boost::boost (headers post cmake 3.15)
+# Boost::unit_test_framework
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54.0 REQUIRED COMPONENTS unit_test_framework)
-target_link_libraries(tsl_sparse_map_tests PRIVATE Boost::unit_test_framework Boost::boost)
+target_link_libraries(tsl_sparse_map_tests PRIVATE Boost::unit_test_framework)
 
 # tsl::sparse_map
 add_subdirectory(../ ${CMAKE_CURRENT_BINARY_DIR}/tsl)
-target_link_libraries(tsl_sparse_map_tests PRIVATE tsl::sparse_map)
+target_link_libraries(tsl_sparse_map_tests PRIVATE Dice::sparse-map)
